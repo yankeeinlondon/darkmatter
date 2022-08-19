@@ -1,6 +1,10 @@
+use lingua::{IsoCode639_1, IsoCode639_3, Language, LanguageDetector, LanguageDetectorBuilder};
 use std::cmp::Ordering;
+use tracing::instrument;
 
-use lingua::{Language, LanguageDetector, LanguageDetectorBuilder};
+use self::errors::LangDetectionError;
+
+pub mod errors;
 
 #[derive(Debug, PartialEq)]
 pub enum LanguageResult {
@@ -21,12 +25,20 @@ pub enum LanguageResult {
     NotChecked(),
 }
 
+#[derive(Debug)]
 pub enum LanguageScope {
     /// All languages
     All(),
     /// With "include" mode any languages expressed will be exclusively _included_ as possible
     /// language options whereas all others will be ignored.
     Include(&'static [Language]),
+
+    /// whitelist/include a number of languages using their **ISO 639-1** language code
+    /// definitions (e.g., 2 digit code)
+    Iso639_1(Box<[IsoCode639_1]>),
+    /// whitelist/include a number of languages using their **ISO 639-3** language code
+    /// definitions (e.g., 3 digit code)
+    Iso639_3(Box<[IsoCode639_3]>),
     /// With "exclude" mode the starting point will be ALL languages with the _exclusion_ of those
     /// stated as not possible.
     Exclude(&'static [Language]),
@@ -40,6 +52,19 @@ pub enum LanguageScope {
     Spoken(),
 }
 
+pub fn iso639_1(lang: &str) -> Result<IsoCode639_1, LangDetectionError> {
+    let attempt: Result<IsoCode639_1, _> = lang.try_into();
+    if let Ok(attempt) = attempt {
+        Ok(attempt)
+    } else {
+        Err(LangDetectionError::InvalidIso(format!(
+            "the string slice of '{}' could not be converted into a valid ISO 639-1 code",
+            &lang
+        )))
+    }
+}
+
+#[derive(Debug)]
 pub struct LanguageOptions {
     /// The languages which will be considered when trying to identify a language within a corpus.
     /// - [available languages](https://docs.rs/lingua/latest/lingua/enum.Language.html)
@@ -87,6 +112,10 @@ impl LanguageOptions {
         }
     }
 
+    pub fn all() -> Self {
+        LanguageOptions::default()
+    }
+
     pub fn all_with_confidence(confidence_threshold: Option<f64>) -> Self {
         let mut lang = LanguageOptions::default();
         lang.confidence_threshold = confidence_threshold;
@@ -94,7 +123,25 @@ impl LanguageOptions {
         lang
     }
 
+    pub fn iso639_1(languages: Box<[IsoCode639_1]>) -> Self {
+        let mut lang = LanguageOptions::default();
+        lang.languages = LanguageScope::Iso639_1(languages);
+
+        lang
+    }
+
+    pub fn iso639_3(languages: Box<[IsoCode639_3]>) -> Self {
+        let mut lang = LanguageOptions::default();
+        lang.languages = LanguageScope::Iso639_3(languages);
+
+        lang
+    }
+
     pub fn whitelist(languages: &'static [Language]) -> Self {
+        if languages.len() < 2 {
+            panic!("The whitelist initializer for language detection was given less than 2 languages to choose between; this is not allowed!");
+        }
+
         let mut lang = LanguageOptions::default();
         lang.languages = LanguageScope::Include(languages);
 
@@ -163,8 +210,10 @@ impl LanguageOptions {
     }
 }
 
-fn get_detector(options: &LanguageOptions) -> LanguageDetector {
-    let mut detector = match options.languages {
+#[instrument]
+fn get_detector(options: &LanguageOptions) -> Result<LanguageDetector, LangDetectionError> {
+    // prep the builder with language scope
+    let mut detector = match &options.languages {
         LanguageScope::All() => LanguageDetectorBuilder::from_all_languages(),
         LanguageScope::Latin() => LanguageDetectorBuilder::from_all_languages_with_latin_script(),
         LanguageScope::Cyrillic() => {
@@ -173,6 +222,25 @@ fn get_detector(options: &LanguageOptions) -> LanguageDetector {
         LanguageScope::Devanagari() => {
             LanguageDetectorBuilder::from_all_languages_with_devanagari_script()
         }
+        LanguageScope::Iso639_1(languages) => {
+            if languages.len() < 2 {
+                let msg = format!("Problems setting up hashing with ISO's passed in as whitelisted languages but there must include at least two languages but only found {}", languages.len());
+
+                return Err(LangDetectionError::LanguageArity(msg));
+            }
+
+            LanguageDetectorBuilder::from_iso_codes_639_1(&languages)
+        }
+        LanguageScope::Iso639_3(languages) => {
+            if languages.len() < 2 {
+                let msg = format!("Problems setting up hashing with ISO's passed in as whitelisted languages but there must include at least two languages but only found {}", languages.len());
+
+                return Err(LangDetectionError::LanguageArity(msg));
+            }
+
+            LanguageDetectorBuilder::from_iso_codes_639_3(&languages)
+        }
+
         LanguageScope::Spoken() => LanguageDetectorBuilder::from_all_spoken_languages(),
         LanguageScope::Include(languages) => LanguageDetectorBuilder::from_languages(languages),
         LanguageScope::Exclude(languages) => {
@@ -188,16 +256,19 @@ fn get_detector(options: &LanguageOptions) -> LanguageDetector {
 
     let detector = detector.build();
 
-    detector
+    Ok(detector)
 }
 
 /// given a corpus of text, this function will
 /// use the [lingua-rs](https://github.com/pemistahl/lingua-rs)
 /// crate to try to detect the underlying language.
-pub fn detect_language(text: &str, options: LanguageOptions) -> LanguageResult {
+pub fn detect_language(
+    text: &str,
+    options: LanguageOptions,
+) -> Result<LanguageResult, LangDetectionError> {
     let detector = get_detector(&options);
     if let Some(threshold) = options.confidence_threshold {
-        let distribution = detector.compute_language_confidence_values(text);
+        let distribution = detector?.compute_language_confidence_values(text);
         let mut above: Vec<(Language, f64)> = vec![];
         let mut below: Vec<(Language, f64)> = vec![];
         for (lang, confidence) in distribution {
@@ -209,18 +280,17 @@ pub fn detect_language(text: &str, options: LanguageOptions) -> LanguageResult {
         }
         if above.len() == 1 {
             let (lang, _) = above.get(0).unwrap();
-            return LanguageResult::Confident(lang.clone());
+            return Ok(LanguageResult::Confident(lang.clone()));
         } else if above.len() == 0 {
             if below.len() > 0 {
-                return LanguageResult::Unsure(below);
+                return Ok(LanguageResult::Unsure(below));
             } else {
-                return LanguageResult::NothingFound();
+                return Ok(LanguageResult::NothingFound());
             }
         } else {
             // multiple languages in "above" so sort by confidence
-            above.sort_unstable_by(|(_, a), (_, b)| b.partial_cmp(a).unwrap_or(Ordering::Equal));
             let s = &above[0..2].to_owned();
-            let front: Vec<f64> = s.iter().map(|(l, c)| c.clone()).into_iter().collect();
+            let front: Vec<f64> = s.iter().map(|(_, c)| c.clone()).into_iter().collect();
 
             if front
                 .get(0)
@@ -229,24 +299,25 @@ pub fn detect_language(text: &str, options: LanguageOptions) -> LanguageResult {
                 .unwrap()
                 == Ordering::Equal
             {
-                return LanguageResult::MultipleChoices(above);
+                return Ok(LanguageResult::MultipleChoices(above));
             } else {
                 let lang = above.get(0).unwrap().clone();
-                return LanguageResult::Confident(lang.0);
+                return Ok(LanguageResult::Confident(lang.0));
             }
         }
     } else {
-        let found = detector.detect_language_of(text);
+        let found = detector?.detect_language_of(text);
         if let Some(found) = found {
-            return LanguageResult::Confident(found);
+            return Ok(LanguageResult::Confident(found));
         } else {
-            return LanguageResult::NothingFound();
+            return Ok(LanguageResult::NothingFound());
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     const EN_TEXT: &str = "The quick brown fox jumped over the lazy dog";
@@ -264,12 +335,24 @@ mod tests {
     ];
 
     #[test]
+    fn iso_descriptor_usable() {
+        let iso = Box::new([
+            iso639_1("de").unwrap(), //
+            iso639_1("en").unwrap(),
+        ]);
+
+        let result = detect_language(DE_TEXT, LanguageOptions::iso639_1(iso)).unwrap();
+
+        assert_eq!(result, LanguageResult::Confident(Language::German));
+    }
+
+    #[test]
     fn correct_with_limited_languages() {
-        let en = detect_language(EN_TEXT, LanguageOptions::whitelist(&LANG_SUBSET));
-        let fr = detect_language(FR_TEXT, LanguageOptions::whitelist(&LANG_SUBSET));
-        let de = detect_language(DE_TEXT, LanguageOptions::whitelist(&LANG_SUBSET));
-        let es = detect_language(ES_TEXT, LanguageOptions::whitelist(&LANG_SUBSET));
-        let it = detect_language(IT_TEXT, LanguageOptions::whitelist(&LANG_SUBSET));
+        let en = detect_language(EN_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let fr = detect_language(FR_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let de = detect_language(DE_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let es = detect_language(ES_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let it = detect_language(IT_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
 
         assert_eq!(en, LanguageResult::Confident(Language::English));
         assert_eq!(fr, LanguageResult::Confident(Language::French));
@@ -280,11 +363,11 @@ mod tests {
 
     #[test]
     fn correct_with_no_threshold() {
-        let en = detect_language(EN_TEXT, LanguageOptions::all_with_confidence(None));
-        let fr = detect_language(FR_TEXT, LanguageOptions::all_with_confidence(None));
-        let de = detect_language(DE_TEXT, LanguageOptions::all_with_confidence(None));
-        let es = detect_language(ES_TEXT, LanguageOptions::all_with_confidence(None));
-        let it = detect_language(IT_TEXT, LanguageOptions::all_with_confidence(None));
+        let en = detect_language(EN_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
+        let fr = detect_language(FR_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
+        let de = detect_language(DE_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
+        let es = detect_language(ES_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
+        let it = detect_language(IT_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
 
         assert_eq!(en, LanguageResult::Confident(Language::English));
         assert_eq!(fr, LanguageResult::Confident(Language::French));

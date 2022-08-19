@@ -1,7 +1,15 @@
 [alias]
 # r = "open target/criterion/index.html"
 
+[profile.dev]
+opt-level = 0
+
+[profile.dev.package.lingua]
+opt-level = 3
+[profile.dev.package.backtrace]
+opt-level = 3
+
 [profile.production]
 opt-level = 2
 lto = true
-
+rustc-flags = ["-C", "target_cpu=native"]

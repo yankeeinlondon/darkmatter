@@ -9,11 +9,17 @@ edition = "2021"
 [dependencies]
 xxhash-rust = { version = "0.8.5", features = ["xxh3", "const_xxh64"] }
 lingua = { version = "1.4.0" }
-
+stop-words = { version = "0.6.2", features = ["serde_json", "nltk" ] }
+human_regex = "0.2.3"
+strum = { version = "0.24.1", features = [ "derive" ] }
+strum_macros = "0.24.3"
+thiserror = "1.0.32"
+tracing = "0.1.36"
 
 [dev-dependencies]
 rand = "0.8.5"
 criterion = "0.3.6"
+fake = "2.5.0"
 
 [[bench]]
 name = "hashing"
