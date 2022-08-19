@@ -85,7 +85,7 @@ pub struct LanguageOptions {
     /// appropriate.
     ///
     /// [Docs](https://github.com/pemistahl/lingua-rs#94-eager-loading-versus-lazy-loading)
-    eager_loading: bool,
+    pub eager_loading: bool,
 }
 
 impl LanguageOptions {
@@ -204,10 +204,6 @@ impl LanguageOptions {
 
         lang
     }
-
-    pub fn load_eagerly(self) -> bool {
-        self.eager_loading
-    }
 }
 
 #[instrument]
@@ -264,7 +260,7 @@ fn get_detector(options: &LanguageOptions) -> Result<LanguageDetector, LangDetec
 /// crate to try to detect the underlying language.
 pub fn detect_language(
     text: &str,
-    options: LanguageOptions,
+    options: &LanguageOptions,
 ) -> Result<LanguageResult, LangDetectionError> {
     let detector = get_detector(&options);
     if let Some(threshold) = options.confidence_threshold {
@@ -341,18 +337,18 @@ mod tests {
             iso639_1("en").unwrap(),
         ]);
 
-        let result = detect_language(DE_TEXT, LanguageOptions::iso639_1(iso)).unwrap();
+        let result = detect_language(DE_TEXT, &LanguageOptions::iso639_1(iso)).unwrap();
 
         assert_eq!(result, LanguageResult::Confident(Language::German));
     }
 
     #[test]
     fn correct_with_limited_languages() {
-        let en = detect_language(EN_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
-        let fr = detect_language(FR_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
-        let de = detect_language(DE_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
-        let es = detect_language(ES_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
-        let it = detect_language(IT_TEXT, LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let en = detect_language(EN_TEXT, &LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let fr = detect_language(FR_TEXT, &LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let de = detect_language(DE_TEXT, &LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let es = detect_language(ES_TEXT, &LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
+        let it = detect_language(IT_TEXT, &LanguageOptions::whitelist(&LANG_SUBSET)).unwrap();
 
         assert_eq!(en, LanguageResult::Confident(Language::English));
         assert_eq!(fr, LanguageResult::Confident(Language::French));
@@ -363,11 +359,11 @@ mod tests {
 
     #[test]
     fn correct_with_no_threshold() {
-        let en = detect_language(EN_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
-        let fr = detect_language(FR_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
-        let de = detect_language(DE_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
-        let es = detect_language(ES_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
-        let it = detect_language(IT_TEXT, LanguageOptions::all_with_confidence(None)).unwrap();
+        let en = detect_language(EN_TEXT, &LanguageOptions::all_with_confidence(None)).unwrap();
+        let fr = detect_language(FR_TEXT, &LanguageOptions::all_with_confidence(None)).unwrap();
+        let de = detect_language(DE_TEXT, &LanguageOptions::all_with_confidence(None)).unwrap();
+        let es = detect_language(ES_TEXT, &LanguageOptions::all_with_confidence(None)).unwrap();
+        let it = detect_language(IT_TEXT, &LanguageOptions::all_with_confidence(None)).unwrap();
 
         assert_eq!(en, LanguageResult::Confident(Language::English));
         assert_eq!(fr, LanguageResult::Confident(Language::French));

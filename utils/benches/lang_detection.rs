@@ -69,7 +69,7 @@ fn sentence(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     DE_TEXT,
-                    LanguageOptions::whitelist(&LANG_SUBSET_SM),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_SM),
                 ))
             })
         },
@@ -81,7 +81,7 @@ fn sentence(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     DE_TEXT,
-                    LanguageOptions::whitelist(&LANG_SUBSET),
+                    &LanguageOptions::whitelist(&LANG_SUBSET),
                 ))
             })
         },
@@ -93,7 +93,7 @@ fn sentence(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     DE_TEXT,
-                    LanguageOptions::whitelist(&LANG_SUBSET_LG),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_LG),
                 ))
             })
         },
@@ -105,15 +105,24 @@ fn sentence(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     DE_TEXT,
-                    LanguageOptions::whitelist(&LANG_SUBSET_XL),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_XL),
                 ))
             })
         },
     );
 
     group.bench_function(
+        "25 languages, preloaded lang", //
+        |b| {
+            let mut options = LanguageOptions::whitelist(&LANG_SUBSET_XL);
+            options.eager_loading = true;
+            b.iter(|| black_box(detect_language(DE_TEXT, &options)))
+        },
+    );
+
+    group.bench_function(
         "all languages", //
-        |b| b.iter(|| black_box(detect_language(DE_TEXT, LanguageOptions::default()))),
+        |b| b.iter(|| black_box(detect_language(DE_TEXT, &LanguageOptions::default()))),
     );
 }
 
@@ -132,7 +141,7 @@ fn paragraph(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     &paragraph,
-                    LanguageOptions::whitelist(&LANG_SUBSET_SM),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_SM),
                 ))
             })
         },
@@ -144,7 +153,7 @@ fn paragraph(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     &paragraph,
-                    LanguageOptions::whitelist(&LANG_SUBSET),
+                    &LanguageOptions::whitelist(&LANG_SUBSET),
                 ))
             })
         },
@@ -156,7 +165,7 @@ fn paragraph(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     &paragraph,
-                    LanguageOptions::whitelist(&LANG_SUBSET_LG),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_LG),
                 ))
             })
         },
@@ -168,7 +177,7 @@ fn paragraph(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     &paragraph,
-                    LanguageOptions::whitelist(&LANG_SUBSET_XL),
+                    &LanguageOptions::whitelist(&LANG_SUBSET_XL),
                 ))
             })
         },
@@ -176,7 +185,7 @@ fn paragraph(c: &mut Criterion) {
 
     group.bench_function(
         "all languages", //
-        |b| b.iter(|| black_box(detect_language(&paragraph, LanguageOptions::default()))),
+        |b| b.iter(|| black_box(detect_language(&paragraph, &LanguageOptions::default()))),
     );
 
     group.bench_function(
@@ -185,7 +194,7 @@ fn paragraph(c: &mut Criterion) {
             b.iter(|| {
                 black_box(detect_language(
                     &paragraph,
-                    LanguageOptions::all_with_confidence(None),
+                    &LanguageOptions::all_with_confidence(None),
                 ))
             })
         },
