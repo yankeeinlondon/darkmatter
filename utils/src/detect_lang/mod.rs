@@ -225,7 +225,7 @@ fn get_detector(options: &LanguageOptions) -> Result<LanguageDetector, LangDetec
                 return Err(LangDetectionError::LanguageArity(msg));
             }
 
-            LanguageDetectorBuilder::from_iso_codes_639_1(&languages)
+            LanguageDetectorBuilder::from_iso_codes_639_1(languages)
         }
         LanguageScope::Iso639_3(languages) => {
             if languages.len() < 2 {
@@ -234,7 +234,7 @@ fn get_detector(options: &LanguageOptions) -> Result<LanguageDetector, LangDetec
                 return Err(LangDetectionError::LanguageArity(msg));
             }
 
-            LanguageDetectorBuilder::from_iso_codes_639_3(&languages)
+            LanguageDetectorBuilder::from_iso_codes_639_3(languages)
         }
 
         LanguageScope::Spoken() => LanguageDetectorBuilder::from_all_spoken_languages(),
@@ -262,7 +262,7 @@ pub fn detect_language(
     text: &str,
     options: &LanguageOptions,
 ) -> Result<LanguageResult, LangDetectionError> {
-    let detector = get_detector(&options);
+    let detector = get_detector(options);
     if let Some(threshold) = options.confidence_threshold {
         let distribution = detector?.compute_language_confidence_values(text);
         let mut above: Vec<(Language, f64)> = vec![];
@@ -276,37 +276,37 @@ pub fn detect_language(
         }
         if above.len() == 1 {
             let (lang, _) = above.get(0).unwrap();
-            return Ok(LanguageResult::Confident(lang.clone()));
-        } else if above.len() == 0 {
-            if below.len() > 0 {
-                return Ok(LanguageResult::Unsure(below));
+            Ok(LanguageResult::Confident(lang.clone()))
+        } else if above.is_empty() {
+            if below.is_empty() {
+                Ok(LanguageResult::Unsure(below))
             } else {
-                return Ok(LanguageResult::NothingFound());
+                Ok(LanguageResult::NothingFound())
             }
         } else {
             // multiple languages in "above" so sort by confidence
             let s = &above[0..2].to_owned();
-            let front: Vec<f64> = s.iter().map(|(_, c)| c.clone()).into_iter().collect();
+            let front: Vec<f64> = s.iter().map(|(_, c)| *c).into_iter().collect();
 
             if front
-                .get(0)
+                .first()
                 .unwrap()
                 .partial_cmp(front.get(1).unwrap())
                 .unwrap()
                 == Ordering::Equal
             {
-                return Ok(LanguageResult::MultipleChoices(above));
+                Ok(LanguageResult::MultipleChoices(above))
             } else {
                 let lang = above.get(0).unwrap().clone();
-                return Ok(LanguageResult::Confident(lang.0));
+                Ok(LanguageResult::Confident(lang.0))
             }
         }
     } else {
         let found = detector?.detect_language_of(text);
         if let Some(found) = found {
-            return Ok(LanguageResult::Confident(found));
+            Ok(LanguageResult::Confident(found))
         } else {
-            return Ok(LanguageResult::NothingFound());
+            Ok(LanguageResult::NothingFound())
         }
     }
 }

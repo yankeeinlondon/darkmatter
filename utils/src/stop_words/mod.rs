@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-
 use human_regex::{
     beginning_of_text, exactly, one_or_more, or, punctuation, whitespace, word_boundary,
 };
@@ -19,9 +17,8 @@ pub fn extract_stop_words(text: &str, lang: LANGUAGE) -> String {
     let text = extra_whitespace.to_regex().replace_all(&*text, " ");
     let trimmings = beginning_of_text() + one_or_more(whitespace());
     let text = trimmings.to_regex().replace_all(&*text, "");
-    let text = text.to_string();
 
-    text
+    text.to_string()
 }
 
 #[cfg(test)]
