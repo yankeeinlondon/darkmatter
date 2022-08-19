@@ -1,0 +1,5 @@
+# Docs: https://bheisler.github.io/criterion.rs/book/cargo_criterion/configuring_cargo_criterion.html
+
+output_format = "criterion"
+ploting_backend = "auto"
+

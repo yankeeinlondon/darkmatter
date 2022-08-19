@@ -1,0 +1,7 @@
+[alias]
+# r = "open target/criterion/index.html"
+
+[profile.production]
+opt-level = 2
+lto = true
+

@@ -1,0 +1,24 @@
+[package]
+name = "dm_utils"
+description = "utilities to aid in the darkmatter transformation pipeline"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+xxhash-rust = { version = "0.8.5", features = ["xxh3", "const_xxh64"] }
+lingua = { version = "1.4.0" }
+
+
+[dev-dependencies]
+rand = "0.8.5"
+criterion = "0.3.6"
+
+[[bench]]
+name = "hashing"
+harness = false
+
+[[bench]]
+name = "lang_detection"
+harness = false
