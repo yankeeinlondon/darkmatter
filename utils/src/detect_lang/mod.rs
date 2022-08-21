@@ -2,9 +2,8 @@ use lingua::{IsoCode639_1, IsoCode639_3, Language, LanguageDetector, LanguageDet
 use std::cmp::Ordering;
 use tracing::instrument;
 
-use self::errors::LangDetectionError;
-
 pub mod errors;
+use self::errors::LangDetectionError;
 
 #[derive(Debug, PartialEq)]
 pub enum LanguageResult {

@@ -14,10 +14,8 @@ impl TocItem {
         }
     }
 
-    pub fn add_child(&mut self, text: &str) -> Self {
+    pub fn add_child(&mut self, text: &str) {
         let level = self.level + 1;
         self.children.push(TocItem::new(&level, text));
-
-        self
     }
 }

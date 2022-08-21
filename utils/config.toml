@@ -3,6 +3,7 @@
 
 [profile.dev]
 opt-level = 0
+rustc-flags = ["-C", "target_cpu=native"]
 
 [profile.dev.package.lingua]
 opt-level = 3
