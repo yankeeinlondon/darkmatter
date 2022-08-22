@@ -57,7 +57,7 @@ const LANG_SUBSET_XL: [Language; 25] = [
 const LANG_SUBSET_SM: [Language; 2] = [Language::English, Language::Spanish];
 
 fn sentence(c: &mut Criterion) {
-    let mut group = c.benchmark_group("language detection on sentence");
+    let mut group = c.benchmark_group("Language Detection on Sentence");
     group.warm_up_time(Duration::from_secs(1));
     group.sample_size(50);
     group.measurement_time(Duration::from_secs(15));
@@ -127,7 +127,7 @@ fn sentence(c: &mut Criterion) {
 }
 
 fn paragraph(c: &mut Criterion) {
-    let mut group = c.benchmark_group("language detection on paragraph");
+    let mut group = c.benchmark_group("Language Detection on Paragraph");
     group.warm_up_time(Duration::from_secs(1));
     group.sample_size(50);
     group.measurement_time(Duration::from_secs(20));

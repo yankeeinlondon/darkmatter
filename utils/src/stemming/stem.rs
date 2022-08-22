@@ -105,7 +105,6 @@ impl StemmedResults {
 
     pub fn insert(&mut self, original: &str, maps_to: String) {
         self.tokens.insert(maps_to.clone());
-        println!("maps_to: {}", &maps_to);
         if self.reverse_lookup.get(&maps_to.clone()).is_none() {
             self.reverse_lookup.insert(maps_to.clone(), vec![]);
         }
@@ -131,7 +130,7 @@ impl StemmedResults {
 
 /// Provides stemming on the text corpus to reduce
 /// words with shared meaning to a single token
-pub fn stem(tokens: &[String], lang: &Language) -> Result<StemmedResults, StemmingError> {
+pub fn stem(tokens: &Vec<String>, lang: &Language) -> Result<StemmedResults, StemmingError> {
     let algo = StemAlgo::try_from(lang)?;
     let stemmer = Stemmer::create(algo.1);
     let mut results = StemmedResults::new();
@@ -148,7 +147,7 @@ pub fn stem(tokens: &[String], lang: &Language) -> Result<StemmedResults, Stemmi
 mod tests {
     use std::path::Path;
 
-    use crate::words::words_from_file;
+    use crate::words::Words;
 
     use super::*;
 
@@ -166,10 +165,10 @@ mod tests {
 
     #[test]
     fn stem_a_full_corpus() {
-        let path = Path::new("src/stemming/corpus.txt");
-        let words = words_from_file(path).expect("Couldn't read corpus.txt!");
-        let results =
-            stem(&words, &Language::English).expect("failed to stem the text loaded from file");
+        let path = Path::new("src/stemming/en.txt");
+        let words = Words::from_path(path, Some(12)).expect("Couldn't read corpus.txt!");
+        let results = stem(&words.as_tokens(), &Language::English)
+            .expect("failed to stem the text loaded from file");
 
         assert_eq!(words.len() > results.len(), true);
         assert_eq!(results.contains("draft"), true);

@@ -24,9 +24,14 @@ fake = "2.5.0"
 tracing-subscriber = "0.3.15"
 
 [[bench]]
+name = "stemming"
+harness = false
+
+[[bench]]
 name = "hashing"
 harness = false
 
 [[bench]]
 name = "lang_detection"
 harness = false
+
