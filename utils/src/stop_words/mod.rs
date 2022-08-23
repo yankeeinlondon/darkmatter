@@ -91,6 +91,18 @@ impl StopWords {
         tokens
     }
 
+    /// Number of words that exist after the stemming
+    /// process has completed.
+    pub fn words(&self) -> usize {
+        self.tokens.len()
+    }
+
+    /// The number of characters in the
+    /// _prose_ export after removing stop words
+    pub fn len(&self) -> usize {
+        self.as_prose().len()
+    }
+
     #[instrument()]
     pub fn language(&self) -> String {
         format!(
@@ -122,6 +134,20 @@ mod tests {
             stop.as_prose(),
             String::from("quick brown fox jumped lazy dog")
         )
+    }
+
+    #[test]
+    fn correct_reporting_of_words_len_and_delta() {
+        let prose = "The quick brown fox jumped over the lazy dog.";
+        let stop = StopWords::parse(
+            prose, //
+            Language::English,
+        )
+        .expect("expected stop words to be returned");
+
+        assert_eq!(stop.len(), 31);
+        assert_eq!(stop.word_reduction(), 3);
+        assert_eq!(stop.words(), 6);
     }
 
     #[test]
