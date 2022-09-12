@@ -5,11 +5,11 @@ const MIN_SECRET_LEN: usize = 256;
 /// Provides a hash for a passed in string slice using the `xxh3` hasher
 /// which is currently the fastest quality hasher available to userland. It
 /// generates a 64-bit hash but should not be confused with an earlier **xxhash**
-/// algorithm `XXH64`. [More Info](https://cppget.org/xxhash?q=testing).
+/// algorithm `XXH64` [ [more info](https://cppget.org/xxhash?q=testing) ].
 ///
-/// Note: you may optionally provide a secret as well to help obfuscate
+/// **Note:** you may optionally provide a secret as well to help obfuscate
 /// the underlying document but xxHash is _not_ considered a cryptographic
-/// hash.
+/// hash and used to detect changes not obfuscate.
 pub fn hash(content: &str, secret: Option<&str>) -> u64 {
     match secret {
         Some(secret) => {
