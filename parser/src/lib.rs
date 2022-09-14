@@ -1,49 +1,62 @@
-use content::toc::TocItem;
+use config::Config;
+use darkmatter::dm::Darkmatter;
+// use content::toc::TocItem;
+use error::ParserError;
+use frontmatter::frontmatter::{
+    Frontmatter, FrontmatterConfig, FrontmatterEngineType, FrontmatterOptions,
+};
+use lingua::Language;
+// use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
-pub mod content;
-pub mod meta;
+use crate::{frontmatter::extract_frontmatter, md_parser::sfc::convert_to_sfc};
 
-pub struct LangDetectConfig {
-    languages: Vec<String>,
+pub mod config;
+pub mod darkmatter;
+pub mod error;
+pub mod frontmatter;
+pub mod md_parser;
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Parsed {
+    frontmatter: Frontmatter,
+    darkmatter: Darkmatter,
+    html: String,
+    md: String,
+    sfc: Option<String>,
+    filename: String,
 }
 
-pub enum UseLangDetection {
-    No(),
-    SwitchedOnDefaults(bool),
-    Configured(),
-}
-
-pub struct Options {
-    /// whether to have language detection run over the
-    /// content of the Markdown.
-    use_lang_detection: UseLangDetection,
-}
-
-pub struct Frontmatter {
-    title: Option<String>,
-    description: Option<String>,
-}
-
-pub struct Darkmatter {
-    /// The uniqueness hash for full content of the page
-    hash: String,
-    /// A hash of the table-of-contents which indicates whether
-    /// the structure of the document has changed
-    structure_hash: String,
-    /// The maximum depth/nesting level the page goes to
-    max_nesting: usize,
-    /// Results from language detection
-    // language: Language,
-    /// The estimated time to read (in minutes)
-    time_to_read: Option<u8>,
-    /// The Table of Contents of the page
-    toc: TocItem,
-}
-
-/// Transforms the raw text content into both:
+/// Transforms the raw text content into:
 ///
-/// 1. Meta data (frontmatter + darkmatter)
-/// 2. HTML (in SFC format or raw HTML)
-pub fn transform() {
-    todo!();
+/// 1. **Frontmatter**: _traditional name/value pairs representing meta data and usable during rendering process_
+/// 2. **Darkmatter**: _meta data derived from a combination of NLP models and structured parsing;
+/// kept separate from Frontmatter to avoid namespace collisions_
+/// 3. **HTML**: _resultant HTML after converting Markdown to HTML and applying pipeline transforms_
+/// 4. **Markdown**: _the markdown text with the frontmatter extracted_
+pub fn parse(filename: &str, content: &str, options: &Options) -> Result<Parsed, ParserError> {
+    let config = Config::default();
+
+    let (md, frontmatter) = extract_frontmatter(filename, content, options);
+    let (html, darkmatter) = convert_to_html(filename, frontmatter, md);
+
+    if options.output == OutputFormat::SFC {
+        Ok(Parsed {
+            frontmatter,
+            darkmatter,
+            html,
+            md,
+            sfc: Some(convert_to_sfc(&html, options)),
+            filename: filename.to_string(),
+        })
+    } else {
+        Ok(Parsed {
+            frontmatter,
+            darkmatter,
+            html,
+            md,
+            sfc: None,
+            filename: filename.to_string(),
+        })
+    }
 }

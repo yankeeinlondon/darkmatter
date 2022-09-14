@@ -8,7 +8,9 @@
         "dessus",
         "faulen",
         "Flesch",
+        "Frontmatter",
         "Hund",
+        "itemprop",
         "Kincaid",
         "marrón",
         "marrone",
@@ -23,9 +25,14 @@
         "saltò",
         "sauta",
         "schnelle",
+        "shortcode",
+        "shortcodes",
         "sobre",
+        "strikethrough",
+        "tasklists",
         "über",
         "veloz",
-        "volpe"
+        "volpe",
+        "Vuepress"
     ]
 }

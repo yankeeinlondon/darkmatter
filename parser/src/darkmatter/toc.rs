@@ -1,4 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 /// An _item_ in a document's Table of Contents
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TocItem {
     level: u8,
     text: String,

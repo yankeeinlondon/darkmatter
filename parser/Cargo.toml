@@ -6,10 +6,20 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-color-eyre = "0.6.2"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+thiserror = "1.0.32"
 # https://docs.rs/gray_matter/latest/gray_matter/
 gray_matter = "0.2.4"
 # https://docs.rs/crate/pulldown-cmark/latest
 pulldown-cmark = { version = "0.9.2", default-features = false, features = ["simd"] }
+lingua = "1.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+regex = "1"
+
+[dev-dependencies]
+rand = "0.8.5"
+criterion = "0.4.0"
+fake = "2.5.0"
+tracing-subscriber = "0.3.15"
