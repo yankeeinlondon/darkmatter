@@ -1,18 +1,31 @@
 use gray_matter::engine::YAML;
 use gray_matter::Matter;
 
-use crate::config::frontmatter::Frontmatter;
-use crate::config::Options;
+pub mod errors;
+pub mod frontmatter;
 
-/// Extracts Frontmatter from Markdown content and applies _default values_
-/// as well as _overrides_.
+use crate::config::Config;
+use crate::models::fm::Frontmatter;
+use crate::models::md::MarkdownContent;
+
+/// This function separates Frontmatter from the Markdown and returns both
+/// after applying all appropriate hook/event transforms on them.
+///
+/// Event Hooks:
+/// - `fm_default_values`
+/// - `md_raw_content`
 pub fn extract_frontmatter(
-    filename: &str,
+    id: &str,
     content: &str,
-    options: &Options,
-) -> (String, Frontmatter) {
+    config: &Config,
+) -> Result<(MarkdownContent, Frontmatter), Error> {
     let matter = Matter::<YAML>::new();
     let fm = matter.parse(content);
+    let content = MarkdownContent::new(&fm.content);
+    let fm = match fm.data {
+        Some(data) => Frontmatter::from_matter(data),
+        None => Frontmatter::new(),
+    };
 
-    (fm.content, Frontmatter::from(fm.data))
+    Ok((content, fm))
 }

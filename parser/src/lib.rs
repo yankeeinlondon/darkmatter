@@ -1,28 +1,30 @@
-use config::Config;
-use darkmatter::dm::Darkmatter;
+use config::{Config, Options};
 // use content::toc::TocItem;
 use error::ParserError;
-use frontmatter::frontmatter::{
-    Frontmatter, FrontmatterConfig, FrontmatterEngineType, FrontmatterOptions,
-};
-use lingua::Language;
+
 // use serde::{Deserialize, Serialize};
+use models::{dm::Darkmatter, fm::Frontmatter, html::HtmlContent, md::MarkdownContent};
 use serde::{Deserialize, Serialize};
 
-use crate::{frontmatter::extract_frontmatter, md_parser::sfc::convert_to_sfc};
+use crate::{
+    frontmatter::extract_frontmatter, hooks::fm_override_values::fm_override_values,
+    md_parser::sfc::convert_to_sfc,
+};
 
 pub mod config;
 pub mod darkmatter;
 pub mod error;
 pub mod frontmatter;
+pub mod hooks;
 pub mod md_parser;
+pub mod models;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Parsed {
     frontmatter: Frontmatter,
     darkmatter: Darkmatter,
-    html: String,
-    md: String,
+    html: HtmlContent,
+    md: MarkdownContent,
     sfc: Option<String>,
     filename: String,
 }
@@ -34,11 +36,28 @@ pub struct Parsed {
 /// kept separate from Frontmatter to avoid namespace collisions_
 /// 3. **HTML**: _resultant HTML after converting Markdown to HTML and applying pipeline transforms_
 /// 4. **Markdown**: _the markdown text with the frontmatter extracted_
-pub fn parse(filename: &str, content: &str, options: &Options) -> Result<Parsed, ParserError> {
-    let config = Config::default();
+pub fn parse(route: &str, content: &str, options: &Options) -> Result<Parsed, ParserError> {
+    let config = Config::with_options(options);
 
-    let (md, frontmatter) = extract_frontmatter(filename, content, options);
-    let (html, darkmatter) = convert_to_html(filename, frontmatter, md);
+    // Markdown and Frontmatter
+    let (markdown, frontmatter) = extract_frontmatter(route, content, &config);
+    // Darkmatter analysis
+    let darkmatter = Darkmatter::analyze_content(
+        markdown, //
+        frontmatter,
+        &config,
+    );
+    // Event Hooks
+    let frontmatter = fm_override_values(
+        route, //
+        frontmatter,
+        &darkmatter,
+        &config,
+    )
+    .unwrap();
+
+    // Parse Markdown to HTML
+    let html = HtmlContent::from_markdown(route, frontmatter, md);
 
     if options.output == OutputFormat::SFC {
         Ok(Parsed {
@@ -59,4 +78,6 @@ pub fn parse(filename: &str, content: &str, options: &Options) -> Result<Parsed,
             filename: filename.to_string(),
         })
     }
+
+    todo!();
 }

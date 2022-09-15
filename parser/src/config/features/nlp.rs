@@ -6,6 +6,7 @@ pub struct LangDetectConfig {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum UseLangDetection {
     DoNotUse,
     /// look for ALL known languages
@@ -31,6 +32,7 @@ pub enum UseLangDetection {
 /// Options regarding what NLP algorithms to run and how to
 /// configure them.
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NlpOptions {
     /// Whether to have language detection run over the
     /// content of the Markdown. Performance will vary based

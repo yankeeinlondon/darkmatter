@@ -2,18 +2,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImageOptions {}
+pub struct EmojiOptions {}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImageConfig {}
+pub struct EmojiConfig {}
 
-impl ImageConfig {
+impl EmojiConfig {
     pub fn default() -> Self {
         todo!();
     }
 
-    pub fn with_options(options: ImageOptions) -> Self {
+    pub fn with_options(options: EmojiOptions) -> Self {
         todo!();
     }
 }

@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MarkdownOptions {
     /// Github style tables
     tables: Option<bool>,
@@ -8,13 +9,14 @@ pub struct MarkdownOptions {
     tasklists: Option<bool>,
     /// automatically convert standard punctuation to "smart punctuation"
     smart_punctuation: Option<bool>,
-    /// 
+    ///
     heading_attributes: Option<bool>,
     footnotes: Option<bool>,
     strikethrough: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MarkdownConfig {
     tables: bool,
     tasklists: bool,
@@ -25,14 +27,14 @@ pub struct MarkdownConfig {
 }
 
 impl MarkdownConfig {
-    pub fn default() -> {
+    pub fn default() -> Self {
         MarkdownConfig {
             tables: true,
             tasklists: true,
             smart_punctuation: true,
             heading_attributes: true,
             footnotes: true,
-            strikethrough: true
+            strikethrough: true,
         }
     }
 

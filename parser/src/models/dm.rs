@@ -1,5 +1,8 @@
 use serde::{Deserialize, Serialize};
-use super::toc::TocItem;
+
+use crate::{config::Config, darkmatter::toc::TocItem};
+
+use super::{fm::Frontmatter, md::MarkdownContent};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Darkmatter {
@@ -16,4 +19,14 @@ pub struct Darkmatter {
     time_to_read: Option<u8>,
     /// The Table of Contents of the page
     toc: TocItem,
+}
+
+impl Darkmatter {
+    pub fn new() -> Self {
+        todo!();
+    }
+
+    pub fn analyze_content(md: MarkdownContent, fm: Frontmatter, config: &Config) -> Self {
+        todo!();
+    }
 }

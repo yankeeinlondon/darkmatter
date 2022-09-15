@@ -2,18 +2,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImageOptions {}
+pub struct TocOptions {}
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ImageConfig {}
+pub struct TocConfig {}
 
-impl ImageConfig {
+impl TocConfig {
     pub fn default() -> Self {
         todo!();
     }
 
-    pub fn with_options(options: ImageOptions) -> Self {
+    pub fn with_options(options: TocOptions) -> Self {
         todo!();
     }
 }

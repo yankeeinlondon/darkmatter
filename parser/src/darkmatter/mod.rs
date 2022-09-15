@@ -1,2 +1,2 @@
-pub mod dm;
+pub mod errors;
 pub mod toc;

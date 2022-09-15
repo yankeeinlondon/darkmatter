@@ -1,0 +1,11 @@
+{
+  "name": "darkmatter-companion",
+  "version": "0.1.0",
+  "description": "The Darkmatter companion for TS",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "vitest"
+  },
+  "author": "Ken Snyder <ken@ken.net>",
+  "license": "MIT"
+}

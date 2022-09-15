@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MetaOptions {
     /// The frontmatter property which will determine the `<title>`
     /// property in the HEAD.
@@ -31,6 +31,7 @@ pub struct MetaOptions {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MetaConfig {
     /// The frontmatter property which will determine the `<title>`
     /// property in the HEAD.
