@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{config::Config, darkmatter::toc::TocItem};
 
-use super::{fm::Frontmatter, md::MarkdownContent};
+use super::{frontmatter::Frontmatter, markdown::MarkdownContent};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Darkmatter {

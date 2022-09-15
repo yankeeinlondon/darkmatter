@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use gray_matter::{engine::Engine, Pod};
+use gray_matter::Pod;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -64,10 +64,7 @@ impl Frontmatter {
 
     /// converts the gray_matter representation of frontmatter
     /// data to the internal representation
-    pub fn from_matter<T>(pod: Pod) -> Self
-    where
-        T: Engine,
-    {
+    pub fn from_matter(pod: Pod) -> Self {
         todo!();
     }
 }

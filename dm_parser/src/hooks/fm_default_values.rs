@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    models::{dm::Darkmatter, fm::Frontmatter},
+    models::{dm::Darkmatter, frontmatter::Frontmatter},
 };
 
 use super::errors::HookError;

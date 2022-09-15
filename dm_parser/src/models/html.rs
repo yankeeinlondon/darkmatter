@@ -3,7 +3,7 @@ use thiserror::Error;
 
 use crate::config::Config;
 
-use super::md::MarkdownContent;
+use super::{frontmatter::Frontmatter, markdown::MarkdownContent};
 
 #[derive(Error, Debug)]
 pub enum HtmlError {}
@@ -16,7 +16,12 @@ impl HtmlContent {
         HtmlContent(content.to_string())
     }
 
-    pub fn from_markdown(md: &MarkdownContent, config: &Config) -> Self {
+    pub fn from_markdown(
+        route: &str,
+        md: &MarkdownContent,
+        fm: &Frontmatter,
+        config: &Config,
+    ) -> Self {
         todo!();
     }
 }
