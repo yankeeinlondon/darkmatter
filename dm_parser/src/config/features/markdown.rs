@@ -39,7 +39,7 @@ impl MarkdownConfig {
     }
 
     pub fn with_options(options: MarkdownOptions) {
-        let config = MarkdownConfig::default();
+        let mut config = MarkdownConfig::default();
 
         if let Some(tables) = options.tables {
             config.tables = tables;

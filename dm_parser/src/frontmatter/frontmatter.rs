@@ -1,7 +1,4 @@
-use gray_matter::{engine::Engine, Matter};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
-use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum FrontmatterEngineType {
@@ -49,17 +46,17 @@ pub struct FrontmatterOptions {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct FrontmatterConfig {
-    delimiter: Option<String>,
+    pub delimiter: Option<String>,
     /// Specifies how the "excerpt" property on frontmatter should be derived
     /// (if at all).
     ///
     /// @default Auto
-    excerpt_strategy: ExcerptStrategy,
+    pub excerpt_strategy: ExcerptStrategy,
     /// the language structure/engine used to set frontmatter dictionary;
     /// options are YAML, JSON, and TOML but _defaults to_ YAML.
     ///
     /// @default YAML
-    engine: FrontmatterEngineType,
+    pub engine: FrontmatterEngineType,
 }
 
 impl FrontmatterConfig {
@@ -72,7 +69,7 @@ impl FrontmatterConfig {
     }
 
     pub fn with_options(options: FrontmatterOptions) -> Self {
-        let config = FrontmatterConfig::default();
+        let mut config = FrontmatterConfig::default();
 
         if let Some(engine) = options.engine {
             config.engine = engine;

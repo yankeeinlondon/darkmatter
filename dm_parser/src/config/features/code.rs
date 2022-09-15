@@ -14,18 +14,18 @@ pub struct CodeOptions {
     /// choice is unknown.
     ///
     /// @default "plain"
-    default_language_for_unknown: Option<&'static str>,
+    default_language_for_unknown: Option<String>,
     /// The _language_ to use for code blocks when no language
     /// is specified.
     ///
     /// @default "plain"
-    default_language_for_unspecified: Option<&'static str>,
+    default_language_for_unspecified: Option<String>,
 
     /// The _language_ to use for code blocks in an _inline_ code
     /// segment and no language has been specified (or it is not recognized).
     ///
     /// @default "markdown"
-    default_language_for_inline: Option<&'static str>,
+    default_language_for_inline: Option<String>,
 
     /// Every line in a code block will be wrapped by an HTML tag
     /// and to provide style utility we can apply a set of classes.
@@ -67,10 +67,10 @@ pub struct CodeOptions {
 
     /// Allows user to choose a code theme suitable for light mode
     /// in the browser.
-    theme_light: Option<&'static str>,
+    theme_light: Option<String>,
     /// Allows user to choose a code theme suitable for dark mode
     /// in the browser.
-    theme_dark: Option<&'static str>,
+    theme_dark: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -80,18 +80,18 @@ pub struct CodeConfig {
     /// choice is unknown.
     ///
     /// @default "plain"
-    default_language_for_unknown: &'static str,
+    default_language_for_unknown: String,
     /// The _language_ to use for code blocks when no language
     /// is specified.
     ///
     /// @default "plain"
-    default_language_for_unspecified: &'static str,
+    default_language_for_unspecified: String,
 
     /// The _language_ to use for code blocks in an _inline_ code
     /// segment and no language has been specified (or it is not recognized).
     ///
     /// @default "markdown"
-    default_language_for_inline: &'static str,
+    default_language_for_inline: String,
 
     /// Every line in a code block will be wrapped by an HTML tag
     /// and to provide style utility we can apply a set of classes.
@@ -133,18 +133,18 @@ pub struct CodeConfig {
 
     /// Allows user to choose a code theme suitable for light mode
     /// in the browser.
-    theme_light: &'static str,
+    theme_light: String,
     /// Allows user to choose a code theme suitable for dark mode
     /// in the browser.
-    theme_dark: &'static str,
+    theme_dark: String,
 }
 
 impl CodeConfig {
     pub fn default() -> Self {
         CodeConfig {
-            default_language_for_unknown: "plain",
-            default_language_for_unspecified: "plain",
-            default_language_for_inline: "markdown",
+            default_language_for_unknown: String::from("plain"),
+            default_language_for_unspecified: String::from("plain"),
+            default_language_for_inline: String::from("markdown"),
             line_class_strategy: LineClassStrategy::Basic,
             allow_code_block_heading: true,
             allow_code_block_footer: true,
@@ -152,13 +152,13 @@ impl CodeConfig {
             show_language: true,
             show_clipboard: false,
             highlight_lines: true,
-            theme_light: "",
-            theme_dark: "",
+            theme_light: String::from(""),
+            theme_dark: String::from(""),
         }
     }
 
     pub fn with_options(options: CodeOptions) -> Self {
-        let config = CodeConfig::default();
+        let mut config = CodeConfig::default();
 
         if let Some(default_language_for_unknown) = options.default_language_for_unknown {
             config.default_language_for_unknown = default_language_for_unknown;

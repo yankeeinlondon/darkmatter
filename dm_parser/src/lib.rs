@@ -2,9 +2,9 @@ use config::{Config, Options};
 // use content::toc::TocItem;
 use error::ParserError;
 
-// use serde::{Deserialize, Serialize};
+use hooks::fm_default_values::fm_default_values;
 use models::{
-    dm::Darkmatter, frontmatter::Frontmatter, html::HtmlContent, markdown::MarkdownContent,
+    darkmatter::Darkmatter, frontmatter::Frontmatter, html::HtmlContent, markdown::MarkdownContent,
     sfc::Sfc,
 };
 use serde::{Deserialize, Serialize};
@@ -39,13 +39,22 @@ pub struct Parsed {
 pub fn parse(route: &str, content: &str, options: &Options) -> Result<Parsed, ParserError> {
     let config = Config::with_options(options);
     // Raw Markdown content
-    let markdown = MarkdownContentRaw::new(content);
+    let mut markdown = MarkdownContentRaw::new(content);
     // Markdown and Frontmatter separated
-    let (markdown, frontmatter) = markdown.extract_frontmatter(route, content, &config);
+    let (markdown, frontmatter) = markdown
+        .extract_frontmatter(content, &config)
+        .map_err(|e| ParserError::Markdown(e))?;
+
+    // Event Hook
+    let frontmatter = fm_default_values(
+        route, //
+        frontmatter,
+        &config,
+    )?;
     // Darkmatter analysis
     let darkmatter = Darkmatter::analyze_content(
-        markdown, //
-        frontmatter,
+        &markdown, //
+        &frontmatter,
         &config,
     );
     // Event Hooks

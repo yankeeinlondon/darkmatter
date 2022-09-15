@@ -16,7 +16,6 @@ strum_macros = "0.24.3"
 thiserror = "1.0.32"
 tracing = "0.1.36"
 rust-stemmers = "1.2.0"
-dm_utils = { path = "dm_utils" }
 
 [dev-dependencies]
 rand = "0.8.5"

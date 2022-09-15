@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::frontmatter::frontmatter::FrontmatterConfig;
+
 use self::{
     code::{CodeConfig, CodeOptions},
     collapsible::{CollapsibleConfig, CollapsibleOptions},
@@ -97,22 +99,23 @@ pub struct FeatureOptions {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FeaturesConfig {
-    links: LinkConfig,
-    meta: MetaConfig,
-    code: CodeConfig,
-    emoji: EmojiConfig,
-    lists: ListConfig,
-    images: ImageConfig,
-    markdown: MarkdownConfig,
-    nlp: NlpConfig,
+    pub links: LinkConfig,
+    pub meta: MetaConfig,
+    pub code: CodeConfig,
+    pub emoji: EmojiConfig,
+    pub lists: ListConfig,
+    pub images: ImageConfig,
+    pub markdown: MarkdownConfig,
+    pub frontmatter: FrontmatterConfig,
+    pub nlp: NlpConfig,
     /// Allows configuration of inlining assets into the page. This includes:
     ///
     /// - markdown
     /// - code blocks
     /// - frontmatter
     /// - css
-    inline: InlineConfig,
-    toc: TocConfig,
+    pub inline: InlineConfig,
+    pub toc: TocConfig,
     /// Provides configuration for enabling _column syntax_ to your markdown.
     ///
     /// ```md
@@ -123,8 +126,8 @@ pub struct FeaturesConfig {
     /// bar
     /// :::
     /// ```
-    columns: ColumnConfig,
-    collapsable: CollapsibleConfig,
+    pub columns: ColumnConfig,
+    pub collapsable: CollapsibleConfig,
     /// Turns on/off the **slot** feature which allows markdown to target slots
     /// defined in a parent container (as is often found in a "layout"). Syntax looks
     /// like:
@@ -136,13 +139,20 @@ pub struct FeaturesConfig {
     /// ```
     ///
     /// As this example illustrates, you can pass "slot props" as well.
-    enable_slots: bool,
+    pub enable_slots: bool,
 }
 
 impl FeaturesConfig {
-    pub fn default() -> Self {
+    pub fn with_options(options: &FeatureOptions) -> Self {
+        todo!();
+    }
+}
+
+impl Default for FeaturesConfig {
+    fn default() -> Self {
         FeaturesConfig {
             markdown: MarkdownConfig::default(),
+            frontmatter: FrontmatterConfig::default(),
             links: LinkConfig::default(),
             meta: MetaConfig::default(),
             code: CodeConfig::default(),
@@ -156,9 +166,5 @@ impl FeaturesConfig {
             collapsable: CollapsibleConfig::default(),
             enable_slots: true,
         }
-    }
-
-    pub fn with_options(options: FeatureOptions) -> Self {
-        todo!();
     }
 }

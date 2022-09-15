@@ -222,6 +222,7 @@ name = "dm_parser"
 version = "0.1.0"
 dependencies = [
  "criterion",
+ "dm_utils",
  "fake",
  "gray_matter",
  "lingua",

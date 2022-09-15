@@ -3,15 +3,15 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use super::fm::MetaProperty;
+use super::frontmatter::MetaProperty;
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum Handler<O> {
     Callback,
     Static(O),
-    RegExp(HashMap<&'static str, O>),
-    IfElse(&'static str, (O, O)),
+    RegExp(HashMap<String, O>),
+    IfElse(String, (O, O)),
 }
 
 #[derive(Debug, Serialize, Deserialize)]

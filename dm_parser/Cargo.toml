@@ -17,7 +17,7 @@ lingua = "1.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 regex = "1"
-dm_utils = { path = "dm_utils" }
+dm_utils = { path = "../dm_utils" }
 
 [dev-dependencies]
 rand = "0.8.5"

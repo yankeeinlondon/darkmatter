@@ -41,7 +41,7 @@ impl HookConfig {
         todo!();
     }
 
-    pub fn with_options(options: HookOptions) -> Self {
+    pub fn with_options(options: &HookOptions) -> Self {
         todo!();
     }
 }

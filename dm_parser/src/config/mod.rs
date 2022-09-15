@@ -50,12 +50,12 @@ impl Config {
 
     pub fn with_options(options: &Options) -> Self {
         let output = OutputFormat::SFC;
-        let features = match options.features {
+        let features = match &options.features {
             Some(features) => FeaturesConfig::with_options(features),
             None => FeaturesConfig::default(),
         };
 
-        let hooks = match options.hooks {
+        let hooks = match &options.hooks {
             Some(hooks) => HookConfig::with_options(hooks),
             None => HookConfig::default(),
         };

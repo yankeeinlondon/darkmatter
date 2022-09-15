@@ -1,4 +1,4 @@
-pub mod dm;
+pub mod darkmatter;
 pub mod frontmatter;
 pub mod handler;
 pub mod html;

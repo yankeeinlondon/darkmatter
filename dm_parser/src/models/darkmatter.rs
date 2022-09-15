@@ -26,7 +26,7 @@ impl Darkmatter {
         todo!();
     }
 
-    pub fn analyze_content(md: MarkdownContent, fm: Frontmatter, config: &Config) -> Self {
+    pub fn analyze_content(md: &MarkdownContent, fm: &Frontmatter, config: &Config) -> Self {
         todo!();
     }
 }

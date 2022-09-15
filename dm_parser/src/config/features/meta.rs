@@ -7,13 +7,13 @@ pub struct MetaOptions {
     /// property in the HEAD.
     ///
     /// @default title
-    pub title_prop: Option<&'static str>,
+    pub title_prop: Option<String>,
     /// Properties in frontmatter dictionary which will be treated as "meta property"
     /// and converted into a `<meta>` tag in the header.
     ///
     /// Note: the `meta` property is always considered an array of meta properties
-    pub meta_props: Option<Vec<&'static str>>,
-    pub route_meta_props: Option<Vec<&'static str>>,
+    pub meta_props: Option<Vec<String>>,
+    pub route_meta_props: Option<Vec<String>>,
 
     // TODO: remember to add "routePath" as hook and have vite integration map; also consider if the same approach should be taken with "routeName"
     /// This defines the name of the _frontmatter property_ which will map to the
@@ -22,7 +22,7 @@ pub struct MetaOptions {
     ///
     /// **Note:** if you need a _per-page_ way of changing this then use the
     /// `route_name` hook instead.
-    pub route_name_prop: Option<&'static str>,
+    pub route_name_prop: Option<String>,
 
     /// Allows query parameters on the page to be passed into Frontmatter properties
     ///
@@ -35,13 +35,13 @@ pub struct MetaOptions {
 pub struct MetaConfig {
     /// The frontmatter property which will determine the `<title>`
     /// property in the HEAD.
-    pub title_prop: &'static str,
+    pub title_prop: String,
     /// Properties in frontmatter dictionary which will be treated as "meta property"
     /// and converted into a `<meta>` tag in the header.
     ///
     /// Note: the `meta` property is always considered an array of meta properties
-    pub meta_props: Vec<&'static str>,
-    pub route_meta_props: Vec<&'static str>,
+    pub meta_props: Vec<String>,
+    pub route_meta_props: Vec<String>,
 
     // TODO: remember to add "routePath" as hook and have vite integration map; also consider if the same approach should be taken with "routeName"
     /// This defines the name of the _frontmatter property_ which will map to the
@@ -50,7 +50,7 @@ pub struct MetaConfig {
     ///
     /// **Note:** if you need a _per-page_ way of changing this then use the
     /// `route_name` hook instead.
-    pub route_name_prop: &'static str,
+    pub route_name_prop: String,
 
     /// Allows query parameters on the page to be passed into Frontmatter properties
     ///
@@ -61,17 +61,17 @@ pub struct MetaConfig {
 impl MetaConfig {
     pub fn default() -> Self {
         MetaConfig {
-            title_prop: "title",
+            title_prop: "title".to_string(),
             meta_props: vec![
-                "title",
-                "description",
-                "image",
-                "url",
-                "image_width",
-                "image_height",
+                "title".to_string(),
+                "description".to_string(),
+                "image".to_string(),
+                "url".to_string(),
+                "image_width".to_string(),
+                "image_height".to_string(),
             ],
-            route_meta_props: vec!["layout"],
-            route_name_prop: "routeName",
+            route_meta_props: vec!["layout".to_string()],
+            route_name_prop: "routeName".to_string(),
             query_parameters: false,
         }
     }

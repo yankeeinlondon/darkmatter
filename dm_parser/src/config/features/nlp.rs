@@ -85,7 +85,7 @@ impl NlpConfig {
 
     /// uses the _default_ settings as a baseline and then adjusts based on options passed in
     pub fn with_options(options: NlpOptions) -> Self {
-        let config = NlpConfig::default();
+        let mut config = NlpConfig::default();
 
         if let Some(use_language_detection) = options.use_language_detection {
             config.use_language_detection = use_language_detection;
