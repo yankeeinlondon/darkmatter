@@ -1,0 +1,6 @@
+[workspace]
+members = ["dm_utils", "dm_parser", "companion"]
+
+[workspace.metadata.companion]
+root = "companion"
+tool = ["pnpm", "run", "build"]
