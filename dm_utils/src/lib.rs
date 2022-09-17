@@ -1,3 +1,7 @@
+#[macro_use]
+extern crate slugify;
+
+pub mod code_highlighting;
 pub mod detect_lang;
 pub mod hasher;
 pub mod stemming;

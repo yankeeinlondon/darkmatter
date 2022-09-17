@@ -6,10 +6,12 @@ opt-level = 0
 
 [profile.dev.package.lingua]
 opt-level = 3
+[profile.dev.package.syntect]
+opt-level = 3
 [profile.dev.package.backtrace]
 opt-level = 3
 
 [profile.production]
-opt-level = 2
+opt-level = 3
 lto = true
 rustc-flags = ["-C", "target_cpu=native"]
