@@ -1,10 +1,6 @@
 use lingua::Language;
 use serde::{Deserialize, Serialize};
 
-pub struct LangDetectConfig {
-    languages: Vec<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum UseLangDetection {

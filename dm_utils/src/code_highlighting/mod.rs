@@ -448,7 +448,7 @@ impl CodeBlock {
 
     pub fn as_html_with_inline_style(
         &mut self,
-        dark_mode: bool,
+        dark_mode: &bool,
     ) -> Result<String, CodeBlockError> {
         let html = self.as_html(&dark_mode)?;
         let info = self.get_css_info(&dark_mode)?;
@@ -460,7 +460,7 @@ impl CodeBlock {
 
     pub fn as_html_with_css_ref(
         &mut self,
-        dark_mode: bool,
+        dark_mode: &bool,
     ) -> Result<String, CodeBlockError> {
         let html = self.as_html(&dark_mode)?;
         let info = self.get_css_info(&dark_mode)?;
@@ -468,7 +468,8 @@ impl CodeBlock {
         Ok(
             [
                 "<link rel=\"stylesheet\" type=\"text/css\" rel=\"noopener\" target=\"_blank\" href=\"", 
-                &info.filename, "\">", 
+                &info.filename, 
+                "\">", 
                 &html
             ].join("\n").to_string()
         )
@@ -626,5 +627,21 @@ mod tests {
             .css
             .contains("meta.link {\n color: #d08770;\n}"));
         assert_eq!(css.filename, "base16-ocean-dark.css")
+    }
+
+    #[test]
+    fn code_to_inline_html_vs_reference() {
+        let code = "let foo: number = 42";
+        let mut block = CodeBlock::new(code);
+        let info = block.get_css_info(&true).unwrap();
+        // let html = block.as_html(&true).unwrap();
+        let inline = block.as_html_with_inline_style(&true).unwrap();
+        let external = block.as_html_with_css_ref(&true).unwrap();
+
+        assert!(external.contains(&info.filename));
+        assert!(!inline.contains(&info.filename));
+
+        assert!(!external.contains("<style"));
+        assert!(inline.contains("<style"));
     }
 }

@@ -1,3 +1,4 @@
+use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -16,11 +17,11 @@ impl HtmlContent {
         HtmlContent(content.to_string())
     }
 
-    pub fn from_markdown(
+    pub fn from_markdown<E: Engine>(
         route: &str,
         md: &MarkdownContent,
         fm: &Frontmatter,
-        config: &Config,
+        config: &Config<E>,
     ) -> Self {
         todo!();
     }

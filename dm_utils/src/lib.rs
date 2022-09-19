@@ -1,4 +1,3 @@
-#[macro_use]
 extern crate slugify;
 
 pub mod code_highlighting;

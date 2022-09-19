@@ -2,6 +2,7 @@ use self::{
     features::{FeatureOptions, FeaturesConfig},
     hooks::{HookConfig, HookOptions},
 };
+use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
 
 pub mod features;
@@ -15,27 +16,27 @@ pub enum OutputFormat {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Options {
+pub struct Options<E: Engine> {
     /// determines the assets which this pipeline will target as the final product
     pub output: Option<OutputFormat>,
     /// specify the features you would like
-    pub features: Option<FeatureOptions>,
+    pub features: Option<FeatureOptions<E>>,
     /// specify the hooks
     pub hooks: Option<HookOptions>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Config {
+pub struct Config<E: Engine> {
     /// the _output_ format which the transformation pipeline is to emit
     pub output: OutputFormat,
     /// configuration for NLP algorithms
-    pub features: FeaturesConfig,
+    pub features: FeaturesConfig<E>,
     /// Frontmatter specific configuration
     pub hooks: HookConfig,
 }
 
-impl Config {
+impl Config<dyn Engine> {
     pub fn default() -> Self {
         let output = OutputFormat::SFC;
         let features = FeaturesConfig::default();
@@ -48,7 +49,7 @@ impl Config {
         }
     }
 
-    pub fn with_options(options: &Options) -> Self {
+    pub fn with_options<E: Engine>(options: &Options<E>) -> Self {
         let output = OutputFormat::SFC;
         let features = match &options.features {
             Some(features) => FeaturesConfig::with_options(features),

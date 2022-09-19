@@ -1,8 +1,4 @@
-use super::frontmatter::Frontmatter;
-use crate::config::Config;
 use dm_utils::hash;
-use gray_matter::engine::YAML;
-use gray_matter::Matter;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -32,40 +28,6 @@ impl MarkdownContentRaw {
     pub fn hash(&self) -> u64 {
         self.hash
     }
-
-    /// This function separates Frontmatter from the Markdown and returns both
-    /// as separate entities.
-    pub fn extract_frontmatter(
-        &mut self,
-        content: &str,
-        config: &Config,
-    ) -> Result<(MarkdownContent, Frontmatter), MarkdownError> {
-        // get parser
-        let mut matter = Matter::<YAML>::new();
-        // configure parser if needed
-        if let Some(delimiter) = &config.features.frontmatter.delimiter {
-            matter.delimiter = delimiter.clone();
-        }
-
-        // match config.features.frontmatter.excerpt_strategy {
-        //     ExcerptStrategy::Delimited(delimiter) => {
-        //         matter.excerpt_delimiter = delimiter;
-        //     }
-        //     default => {}
-        // }
-
-        let fm = matter.parse(content);
-        // mutate content state to reflect the isolated markdown content
-        self.content = fm.content;
-        // convert type to MarkdownContent and Frontmatter
-        let content = MarkdownContent::new(self);
-        let fm = match fm.data {
-            Some(data) => Frontmatter::from_matter(data),
-            None => Frontmatter::new(),
-        };
-
-        Ok((content, fm))
-    }
 }
 
 /// a string which represents Markdown content (but no frontmatter)
@@ -79,8 +41,11 @@ pub struct MarkdownContent {
     content: String,
 }
 impl MarkdownContent {
-    pub fn new(md: &MarkdownContentRaw) -> Self {
-        let content = md.content();
+    /// takes the **raw** Markdown along with the markdown content
+    /// after the frontmatter has been extracted. This allows the
+    /// creation of a struct which has hashes for both states but
+    /// only the content for the _actual_ markdown.
+    pub fn new(md: &MarkdownContentRaw, content: &str) -> Self {
         MarkdownContent {
             content: content.to_string(),
             raw_hash: md.hash(),

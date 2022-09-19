@@ -10,12 +10,16 @@ const MEDIUM_HASH: usize = 2048;
 const LARGE_HASH: usize = 8096;
 
 fn hash_by_content_size(c: &mut Criterion) {
-    let tiny_content: String = Alphanumeric.sample_string(&mut rand::thread_rng(), TINY_HASH);
-    let small_content: String = Alphanumeric.sample_string(&mut rand::thread_rng(), SMALL_HASH);
-    let medium_content: String = Alphanumeric.sample_string(&mut rand::thread_rng(), MEDIUM_HASH);
-    let large_content: String = Alphanumeric.sample_string(&mut rand::thread_rng(), LARGE_HASH);
+    let tiny_content: String =
+        Alphanumeric.sample_string(&mut rand::thread_rng(), TINY_HASH);
+    let small_content: String =
+        Alphanumeric.sample_string(&mut rand::thread_rng(), SMALL_HASH);
+    let medium_content: String =
+        Alphanumeric.sample_string(&mut rand::thread_rng(), MEDIUM_HASH);
+    let large_content: String =
+        Alphanumeric.sample_string(&mut rand::thread_rng(), LARGE_HASH);
 
-    let mut group = c.benchmark_group("hash by content size");
+    let mut group = c.benchmark_group("Hashing");
     group.warm_up_time(Duration::from_secs(1));
     group.sample_size(250);
     group.measurement_time(Duration::from_secs(3));

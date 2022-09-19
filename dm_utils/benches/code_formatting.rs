@@ -1,8 +1,7 @@
-use std::{path::Path, time::Duration};
-
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use dm_utils::code_highlighting::CodeBlock;
 use std::fs::read_to_string;
+use std::{path::Path, time::Duration};
 
 pub struct TestData {
     pub javascript_small: String,
@@ -58,93 +57,107 @@ impl TestData {
 fn code_formatting_by_block_size_and_language(c: &mut Criterion) {
     // HTML Highlighting
     let data = TestData::new();
-    let mut group = c.benchmark_group(
-        "Code highlighting by size, language, and output format",
-    );
+    let mut group = c.benchmark_group("Code Highlighting");
     group.warm_up_time(Duration::from_secs(1));
     group.sample_size(125);
     group.measurement_time(Duration::from_secs(5));
 
     // JS
-    group.bench_function("js/small/html", |b| {
+    group.bench_function("JS/small -> HTML", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.javascript_small, "javascript")
-                    .as_html(),
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
-    group.bench_function("js/large/html", |b| {
+    group.bench_function("JS/large -> HTML", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.javascript_large, "javascript")
-                    .as_html(),
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
 
     // TS
-    group.bench_function("ts/small/html", |b| {
+    group.bench_function("TS/small -> HTML", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.typescript_small, "typescript")
-                    .as_html(),
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
-    group.bench_function("ts/large/html", |b| {
+    group.bench_function("TS/large -> HTML", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.typescript_large, "typescript")
-                    .as_html(),
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
 
     // RUST
-    group.bench_function("rust/small/html", |b| {
+    group.bench_function("rust/small -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.rust_small, "rust").as_html(),
+                CodeBlock::new_with_lang(&data.rust_small, "rust")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
-    group.bench_function("rust/large/html", |b| {
+    group.bench_function("rust/large -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.rust_large, "rust").as_html(),
+                CodeBlock::new_with_lang(&data.rust_large, "rust")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
 
     // CSS
-    group.bench_function("css/small/html", |b| {
+    group.bench_function("css/small -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.css_small, "css").as_html(),
+                CodeBlock::new_with_lang(&data.css_small, "css")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
-    group.bench_function("css/large/html", |b| {
+    group.bench_function("css/large -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.css_large, "css").as_html(),
+                CodeBlock::new_with_lang(&data.css_large, "css")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
 
     // HTML
-    group.bench_function("html/small/html", |b| {
+    group.bench_function("HTML/small -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.html_small, "html").as_html(),
+                CodeBlock::new_with_lang(&data.html_small, "html")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
-    group.bench_function("html/large/html", |b| {
+    group.bench_function("HTML/large -> HTML", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.html_large, "html").as_html(),
+                CodeBlock::new_with_lang(&data.html_large, "html")
+                    .unwrap()
+                    .as_html(&true),
             )
         })
     });
@@ -152,89 +165,101 @@ fn code_formatting_by_block_size_and_language(c: &mut Criterion) {
     // CONSOLE OUTPUT
 
     // JS
-    group.bench_function("js/small/console", |b| {
+    group.bench_function("JS/small -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.javascript_small, "javascript")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
-    group.bench_function("js/large/console", |b| {
+    group.bench_function("JS/large -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.javascript_large, "javascript")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
 
     // TS
-    group.bench_function("ts/small/console", |b| {
+    group.bench_function("TS/small -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.typescript_small, "typescript")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
-    group.bench_function("ts/large/console", |b| {
+    group.bench_function("TS/large -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.typescript_large, "typescript")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
 
     // RUST
-    group.bench_function("rust/small/console", |b| {
+    group.bench_function("rust/small -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.rust_small, "rust")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
-    group.bench_function("rust/large/console", |b| {
+    group.bench_function("rust/large -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.rust_large, "rust")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
 
     // CSS
-    group.bench_function("css/small/console", |b| {
+    group.bench_function("css/small -> Console", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.css_small, "css").for_console(),
+                CodeBlock::new_with_lang(&data.css_small, "css")
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
-    group.bench_function("css/large/console", |b| {
+    group.bench_function("css/large -> Console", |b| {
         b.iter(|| {
             black_box(
-                CodeBlock::new_with_lang(&data.css_large, "css").for_console(),
+                CodeBlock::new_with_lang(&data.css_large, "css")
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
 
     // HTML
-    group.bench_function("html/small/console", |b| {
+    group.bench_function("HTML/small -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.html_small, "html")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });
-    group.bench_function("html/large/console", |b| {
+    group.bench_function("HTML/large -> Console", |b| {
         b.iter(|| {
             black_box(
                 CodeBlock::new_with_lang(&data.html_large, "html")
-                    .for_console(),
+                    .unwrap()
+                    .as_escaped_console(&true),
             )
         })
     });

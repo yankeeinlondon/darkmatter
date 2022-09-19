@@ -57,11 +57,12 @@ const LANG_SUBSET_XL: [Language; 25] = [
 const LANG_SUBSET_SM: [Language; 2] = [Language::English, Language::Spanish];
 
 fn sentence(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Language Detection on Sentence");
+    let mut group = c.benchmark_group("Language Detection (sentence)");
     group.warm_up_time(Duration::from_secs(1));
     group.sample_size(50);
     group.measurement_time(Duration::from_secs(15));
-    const DE_TEXT: &str = "Der schnelle braune Fuchs sprang über den faulen Hund";
+    const DE_TEXT: &str =
+        "Der schnelle braune Fuchs sprang über den faulen Hund";
 
     group.bench_function(
         "2 languages", //
@@ -122,18 +123,22 @@ fn sentence(c: &mut Criterion) {
 
     group.bench_function(
         "all languages", //
-        |b| b.iter(|| black_box(detect_language(DE_TEXT, &LanguageOptions::default()))),
+        |b| {
+            b.iter(|| {
+                black_box(detect_language(DE_TEXT, &LanguageOptions::default()))
+            })
+        },
     );
 }
 
 fn paragraph(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Language Detection on Paragraph");
+    let mut group = c.benchmark_group("Language Detection (paragraph");
     group.warm_up_time(Duration::from_secs(1));
-    group.sample_size(50);
+    group.sample_size(35);
     group.measurement_time(Duration::from_secs(20));
 
-    let paragraph =
-        read_to_string("benches/paragraph.txt").expect("Couldn't load paragraph.txt fixture");
+    let paragraph = read_to_string("benches/paragraph.txt")
+        .expect("Couldn't load paragraph.txt fixture");
 
     group.bench_function(
         "2 languages", //
@@ -185,7 +190,14 @@ fn paragraph(c: &mut Criterion) {
 
     group.bench_function(
         "all languages", //
-        |b| b.iter(|| black_box(detect_language(&paragraph, &LanguageOptions::default()))),
+        |b| {
+            b.iter(|| {
+                black_box(detect_language(
+                    &paragraph,
+                    &LanguageOptions::default(),
+                ))
+            })
+        },
     );
 
     group.bench_function(

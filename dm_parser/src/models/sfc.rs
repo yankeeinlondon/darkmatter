@@ -1,5 +1,8 @@
+use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+use crate::config::{Config, OutputFormat};
 
 #[derive(Error, Debug)]
 pub enum SfcError {}
@@ -18,9 +21,9 @@ pub struct Sfc {
 }
 
 impl Sfc {
-    pub fn new(is_target_of_build: bool) -> Self {
+    pub fn new<E: Engine>(config: &Config<E>) -> Self {
         Sfc {
-            is_target_of_build,
+            is_target_of_build: config.output == OutputFormat::SFC,
             setup_script: String::from(""),
             script_blocks: vec![],
             template: String::from(""),

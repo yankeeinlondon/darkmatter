@@ -1,13 +1,12 @@
+use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
-
-use crate::frontmatter::frontmatter::FrontmatterConfig;
 
 use self::{
     code::{CodeConfig, CodeOptions},
     collapsible::{CollapsibleConfig, CollapsibleOptions},
     columns::{ColumnConfig, ColumnOptions},
     emoji::{EmojiConfig, EmojiOptions},
-    frontmatter::FrontmatterOptions,
+    frontmatter::{FrontmatterConfig, FrontmatterOptions},
     image::{ImageConfig, ImageOptions},
     inline::{InlineConfig, InlineOptions},
     link::{LinkConfig, LinkOptions},
@@ -33,10 +32,10 @@ pub mod nlp;
 pub mod toc;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FeatureOptions {
+pub struct FeatureOptions<E: Engine> {
     /// Configuration of which NLP algorithms you would like to use
     nlp: Option<NlpOptions>,
-    frontmatter: Option<FrontmatterOptions>,
+    frontmatter: Option<FrontmatterOptions<E>>,
     /// Options to extend the core parsers target of CommonMark standard
     /// with well known extensions. By default _all_ options are turned on.
     markdown: Option<MarkdownOptions>,
@@ -98,7 +97,7 @@ pub struct FeatureOptions {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct FeaturesConfig {
+pub struct FeaturesConfig<E: Engine> {
     pub links: LinkConfig,
     pub meta: MetaConfig,
     pub code: CodeConfig,
@@ -106,7 +105,7 @@ pub struct FeaturesConfig {
     pub lists: ListConfig,
     pub images: ImageConfig,
     pub markdown: MarkdownConfig,
-    pub frontmatter: FrontmatterConfig,
+    pub frontmatter: FrontmatterConfig<E>,
     pub nlp: NlpConfig,
     /// Allows configuration of inlining assets into the page. This includes:
     ///
@@ -142,13 +141,13 @@ pub struct FeaturesConfig {
     pub enable_slots: bool,
 }
 
-impl FeaturesConfig {
-    pub fn with_options(options: &FeatureOptions) -> Self {
+impl FeaturesConfig<dyn Engine> {
+    pub fn with_options<E: Engine>(options: &FeatureOptions<E>) -> Self {
         todo!();
     }
 }
 
-impl Default for FeaturesConfig {
+impl Default for FeaturesConfig<dyn Engine> {
     fn default() -> Self {
         FeaturesConfig {
             markdown: MarkdownConfig::default(),

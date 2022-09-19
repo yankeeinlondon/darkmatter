@@ -1,8 +1,10 @@
+use super::{frontmatter::Frontmatter, markdown::MarkdownContent};
+use crate::config::Config;
+use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
 
-use crate::{config::Config, darkmatter::toc::TocItem};
-
-use super::{frontmatter::Frontmatter, markdown::MarkdownContent};
+#[derive(Debug, Serialize, Deserialize)]
+pub enum DarkmatterError {}
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Darkmatter {
@@ -17,8 +19,6 @@ pub struct Darkmatter {
     // language: Language,
     /// The estimated time to read (in minutes)
     time_to_read: Option<u8>,
-    /// The Table of Contents of the page
-    toc: TocItem,
 }
 
 impl Darkmatter {
@@ -26,7 +26,11 @@ impl Darkmatter {
         todo!();
     }
 
-    pub fn analyze_content(md: &MarkdownContent, fm: &Frontmatter, config: &Config) -> Self {
+    pub fn analyze_content<E: Engine>(
+        md: &MarkdownContent,
+        fm: &Frontmatter,
+        config: &Config<E>,
+    ) -> Self {
         todo!();
     }
 }

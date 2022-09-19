@@ -5,7 +5,7 @@ use dm_utils::{stemming::stem, words::Words, StopWords};
 use lingua::Language;
 
 fn mid_sized(c: &mut Criterion) {
-    let mut group = c.benchmark_group("Stemming with mid-sized word set");
+    let mut group = c.benchmark_group("Stemming");
 
     group.warm_up_time(Duration::from_secs(2));
     group.sample_size(100);
@@ -54,7 +54,8 @@ fn mid_sized(c: &mut Criterion) {
         |b| {
             b.iter(|| {
                 black_box({
-                    stem(&en_prose_no_stop.as_tokens(), &Language::English).unwrap();
+                    stem(&en_prose_no_stop.as_tokens(), &Language::English)
+                        .unwrap();
                 })
             })
         },
@@ -79,7 +80,8 @@ fn mid_sized(c: &mut Criterion) {
         |b| {
             b.iter(|| {
                 black_box({
-                    stem(&de_prose_no_stop.as_tokens(), &Language::German).unwrap();
+                    stem(&de_prose_no_stop.as_tokens(), &Language::German)
+                        .unwrap();
                 })
             })
         },
