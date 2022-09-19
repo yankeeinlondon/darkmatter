@@ -1,4 +1,3 @@
-use gray_matter::engine::{Engine, YAML};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,7 +27,7 @@ pub enum ExcerptStrategy {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FrontmatterOptions<E: Engine> {
+pub struct FrontmatterOptions {
     /// Specifies how the "excerpt" property on frontmatter should be derived
     /// (if at all). The Auto strategy will try frontmatter first, then use
     /// the `\n---` excerpt delimiter on body, and finally use the "generated"
@@ -41,12 +40,12 @@ pub struct FrontmatterOptions<E: Engine> {
     /// options are YAML, JSON, and TOML but _defaults to_ YAML.
     ///
     /// @default YAML
-    engine: Option<E>,
+    engine: Option<FrontmatterEngineType>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FrontmatterConfig<E: Engine> {
+pub struct FrontmatterConfig {
     pub delimiter: Option<String>,
     /// Specifies how the "excerpt" property on frontmatter should be derived
     /// (if at all).
@@ -57,21 +56,21 @@ pub struct FrontmatterConfig<E: Engine> {
     /// options are YAML, JSON, and TOML but _defaults to_ YAML.
     ///
     /// @default YAML
-    pub engine: E,
+    pub engine: FrontmatterEngineType,
 }
 
-impl Default for FrontmatterConfig<dyn Engine> {
-    fn default() -> FrontmatterConfig<YAML> {
+impl Default for FrontmatterConfig {
+    fn default() -> FrontmatterConfig {
         FrontmatterConfig {
             delimiter: None,
             excerpt_strategy: ExcerptStrategy::Auto,
-            engine: YAML,
+            engine: FrontmatterEngineType::YAML,
         }
     }
 }
 
-impl FrontmatterConfig<dyn Engine> {
-    pub fn with_options<E: Engine>(options: FrontmatterOptions<E>) -> Self {
+impl FrontmatterConfig {
+    pub fn with_options(options: FrontmatterOptions) -> Self {
         let mut config = FrontmatterConfig::default();
 
         if let Some(engine) = options.engine {

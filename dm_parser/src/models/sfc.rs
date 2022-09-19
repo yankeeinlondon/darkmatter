@@ -21,7 +21,7 @@ pub struct Sfc {
 }
 
 impl Sfc {
-    pub fn new<E: Engine>(config: &Config<E>) -> Self {
+    pub fn new(config: &Config) -> Self {
         Sfc {
             is_target_of_build: config.output == OutputFormat::SFC,
             setup_script: String::from(""),

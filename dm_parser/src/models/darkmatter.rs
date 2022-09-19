@@ -1,9 +1,8 @@
-use super::{frontmatter::Frontmatter, markdown::MarkdownContent};
-use crate::config::Config;
-use gray_matter::engine::Engine;
+use super::pipeline::Pipeline;
 use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Error)]
 pub enum DarkmatterError {}
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -26,11 +25,7 @@ impl Darkmatter {
         todo!();
     }
 
-    pub fn analyze_content<E: Engine>(
-        md: &MarkdownContent,
-        fm: &Frontmatter,
-        config: &Config<E>,
-    ) -> Self {
+    pub fn analyze_content(ctx: &Pipeline) -> Self {
         todo!();
     }
 }

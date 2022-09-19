@@ -3,7 +3,10 @@ use super::markdown::MarkdownContentRaw;
 use crate::config::features::frontmatter::ExcerptStrategy;
 use crate::config::features::frontmatter::FrontmatterEngineType;
 use crate::config::Config;
-use gray_matter::engine::{Engine, JSON, TOML, YAML};
+use gray_matter::engine::JSON;
+use gray_matter::engine::TOML;
+use gray_matter::engine::YAML;
+use gray_matter::ParsedEntity;
 use gray_matter::{Matter, Pod};
 use serde::{Deserialize, Serialize};
 use serde_json::Error as SerdeJsonError;
@@ -56,8 +59,14 @@ pub struct Frontmatter {
     pub other: HashMap<String, Value>,
 }
 
+impl Default for Frontmatter {
+    fn default() -> Frontmatter {
+        Frontmatter::new(None)
+    }
+}
+
 impl Frontmatter {
-    pub fn new() -> Self {
+    pub fn new(fm: Option<Frontmatter>) -> Self {
         Frontmatter {
             title: None,
             description: None,
@@ -77,40 +86,62 @@ impl Frontmatter {
 
     /// Receives _raw markdown_ content and returns the Frontmatter
     /// and the markdown content with the Frontmatter extracted
-    pub fn extract<E: Engine>(
+    pub fn extract(
         raw_md: &MarkdownContentRaw,
-        config: &Config<E>,
+        config: &Config,
     ) -> Result<(MarkdownContent, Frontmatter), FrontmatterError> {
-        let fm = Frontmatter::new();
-        let matter = Box::new(Matter::<E>::new());
+        let fm = Frontmatter::default();
+        let matter: ParsedEntity;
 
-        if let Some(delimiter) = &config.features.frontmatter.delimiter {
-            matter.delimiter = delimiter.clone();
-        }
+        match &config.features.frontmatter.engine {
+            FrontmatterEngineType::YAML => {
+                let mut parser = Matter::<YAML>::new();
+                if let Some(delimiter) = &config.features.frontmatter.delimiter {
+                    parser.delimiter = delimiter.clone();
+                }
+                matter = parser.parse(&raw_md.content());
+            }
+            FrontmatterEngineType::JSON => {
+                let mut parser = Matter::<JSON>::new();
+                if let Some(delimiter) = &config.features.frontmatter.delimiter {
+                    parser.delimiter = delimiter.clone();
+                }
+                matter = parser.parse(&raw_md.content());
+            }
+            FrontmatterEngineType::TOML => {
+                let mut parser = Matter::<TOML>::new();
+                if let Some(delimiter) = &config.features.frontmatter.delimiter {
+                    parser.delimiter = delimiter.clone();
+                }
+                matter = parser.parse(&raw_md.content());
+            }
+        };
 
-        let mut frontmatter = if let Some(fm) = fm.data {
+        let mut frontmatter = if let Some(fm) = matter.data {
             Frontmatter::try_from(fm)?
         } else {
             Frontmatter::default()
         };
 
-        let fm = matter.parse(raw_md);
         // Excerpt content extracted from the body parse
         let excerpt = fm.excerpt;
-        let mut markdown = MarkdownContent::new(raw_md, &fm.content);
+        let markdown = MarkdownContent::new(raw_md, &matter.content);
         // Work with excerpt based on strategy
-        let preferred: &Option<String> = match config.features.frontmatter.excerpt_strategy {
+        let preferred = match config.features.frontmatter.excerpt_strategy {
             ExcerptStrategy::Auto => [&frontmatter.excerpt, &excerpt],
             ExcerptStrategy::Delimited(_) => [&excerpt, &None],
             ExcerptStrategy::Frontmatter => [&frontmatter.excerpt, &None],
             ExcerptStrategy::None => [&None, &None],
         }
         .into_iter()
-        .filter(|i| **i.is_some())
-        .first()
-        .collect();
+        .flat_map(|i| i)
+        .nth(0);
 
-        frontmatter.excerpt = preferred;
+        frontmatter.excerpt = if let Some(excerpt) = preferred {
+            Some(excerpt.clone())
+        } else {
+            None
+        };
 
         Ok((markdown, frontmatter))
     }
