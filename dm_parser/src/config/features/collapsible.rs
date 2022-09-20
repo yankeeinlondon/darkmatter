@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct CollapsibleOptions {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CollapsibleConfig {}
 
-impl CollapsibleConfig {
-    pub fn default() -> Self {
-        todo!();
+impl Default for CollapsibleConfig {
+    fn default() -> Self {
+        CollapsibleConfig {}
     }
+}
 
+impl CollapsibleConfig {
     pub fn with_options(options: CollapsibleOptions) -> Self {
-        todo!();
+        CollapsibleConfig::default()
     }
 }

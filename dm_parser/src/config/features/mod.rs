@@ -1,4 +1,3 @@
-use gray_matter::engine::Engine;
 use serde::{Deserialize, Serialize};
 
 use self::{
@@ -96,7 +95,7 @@ pub struct FeatureOptions {
     enable_slots: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct FeaturesConfig {
     pub links: LinkConfig,
     pub meta: MetaConfig,

@@ -1,11 +1,7 @@
 use config::{Config, Options};
 // use content::toc::TocItem;
 use error::ParserError;
-use models::{
-    context::BaseContext, darkmatter::Darkmatter, frontmatter::Frontmatter, html::HtmlContent,
-    markdown::MarkdownContent, pipeline::Pipeline, sfc::Sfc,
-};
-use serde::{Deserialize, Serialize};
+use models::{frontmatter::Frontmatter, pipeline::Pipeline};
 
 use crate::models::markdown::MarkdownContentRaw;
 
@@ -13,17 +9,6 @@ pub mod config;
 pub mod error;
 pub mod hooks;
 pub mod models;
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Parsed {
-    id: String,
-    route: String,
-    frontmatter: Frontmatter,
-    darkmatter: Darkmatter,
-    html: HtmlContent,
-    markdown: MarkdownContent,
-    sfc: Sfc,
-}
 
 /// The key parsing/transform library which converts markdown into a
 /// target output that the user specifies as part of their configuration.
@@ -56,5 +41,5 @@ pub fn parse(route: &str, content: &str, options: &Options) -> Result<Pipeline, 
         .h_code_block_formatted()?
         // Parse to SFC format (where configured to do so)
         .parse_sfc()?,
-    );
+    )
 }

@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct ColumnOptions {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ColumnConfig {}
 
-impl ColumnConfig {
-    pub fn default() -> Self {
-        todo!();
+impl Default for ColumnConfig {
+    fn default() -> Self {
+        ColumnConfig {}
     }
+}
 
+impl ColumnConfig {
     pub fn with_options(options: ColumnOptions) -> Self {
-        todo!();
+        ColumnConfig::default()
     }
 }

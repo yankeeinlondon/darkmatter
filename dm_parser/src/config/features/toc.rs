@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct TocOptions {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TocConfig {}
 
-impl TocConfig {
-    pub fn default() -> Self {
-        todo!();
+impl Default for TocConfig {
+    fn default() -> Self {
+        TocConfig {}
     }
+}
 
+impl TocConfig {
     pub fn with_options(options: TocOptions) -> Self {
-        todo!();
+        TocConfig::default()
     }
 }

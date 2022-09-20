@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct EmojiOptions {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EmojiConfig {}
 
-impl EmojiConfig {
-    pub fn default() -> Self {
-        todo!();
+impl Default for EmojiConfig {
+    fn default() -> Self {
+        EmojiConfig {}
     }
+}
 
+impl EmojiConfig {
     pub fn with_options(options: EmojiOptions) -> Self {
-        todo!();
+        EmojiConfig::default()
     }
 }

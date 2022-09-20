@@ -24,13 +24,13 @@ impl BaseContext {
         BaseContext {
             id: id.to_string(),
             route: route.to_string(),
-            frontmatter: *frontmatter.clone(),
+            frontmatter: frontmatter.clone(),
             darkmatter: if let Some(darkmatter) = darkmatter {
-                Some(*darkmatter.clone())
+                Some(darkmatter.clone())
             } else {
                 None
             },
-            config: *config.clone(),
+            config: config.clone(),
         }
     }
 }

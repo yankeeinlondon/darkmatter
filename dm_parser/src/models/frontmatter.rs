@@ -20,7 +20,7 @@ pub enum FrontmatterError {
     Parsing(#[from] SerdeJsonError),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MetaProperty {
     key: Option<String>,
@@ -39,7 +39,7 @@ pub struct MetaProperty {
     other: HashMap<String, Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Frontmatter {
     pub title: Option<String>,
@@ -172,5 +172,27 @@ impl TryFrom<Pod> for Frontmatter {
         let json: Value = pod.deserialize()?;
 
         Frontmatter::try_from(json)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fm_extract_separates_content() {
+        let md = MarkdownContentRaw::new(
+            r#"---
+        foo: "bar"
+        ---
+
+        # Hello World
+        this is a test
+        "#,
+        );
+
+        let (md, fm) = Frontmatter::extract(&md, &Config::default()).unwrap();
+
+        dbg!("md:\n{}\n\nfm:\n{}", &md, &fm);
     }
 }

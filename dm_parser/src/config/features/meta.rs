@@ -30,7 +30,7 @@ pub struct MetaOptions {
     pub query_parameters: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MetaConfig {
     /// The frontmatter property which will determine the `<title>`

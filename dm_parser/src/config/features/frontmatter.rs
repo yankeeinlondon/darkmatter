@@ -1,13 +1,13 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum FrontmatterEngineType {
     YAML,
     JSON,
     TOML,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum ExcerptStrategy {
     /// the **auto** strategy will use the "excerpt" property if found
@@ -43,7 +43,7 @@ pub struct FrontmatterOptions {
     engine: Option<FrontmatterEngineType>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FrontmatterConfig {
     pub delimiter: Option<String>,

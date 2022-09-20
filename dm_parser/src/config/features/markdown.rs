@@ -15,7 +15,7 @@ pub struct MarkdownOptions {
     strikethrough: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkdownConfig {
     tables: bool,

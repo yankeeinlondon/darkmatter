@@ -4,16 +4,18 @@ use serde::{Deserialize, Serialize};
 #[serde(rename_all = "camelCase")]
 pub struct InlineOptions {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct InlineConfig {}
 
-impl InlineConfig {
-    pub fn default() -> Self {
-        todo!();
+impl Default for InlineConfig {
+    fn default() -> Self {
+        InlineConfig {}
     }
+}
 
+impl InlineConfig {
     pub fn with_options(options: InlineOptions) -> Self {
-        todo!();
+        InlineConfig::default()
     }
 }

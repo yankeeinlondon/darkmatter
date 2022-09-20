@@ -1,7 +1,7 @@
 use lingua::Language;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum UseLangDetection {
     DoNotUse,
@@ -48,7 +48,7 @@ pub struct NlpOptions {
 }
 
 /// Finalized configuration for NLP options
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct NlpConfig {
     /// Whether to have language detection run over the
     /// content of the Markdown. Performance will vary based

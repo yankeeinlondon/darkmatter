@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 pub mod features;
 pub mod hooks;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub enum OutputFormat {
     HTML,
     SFC,
@@ -24,7 +24,7 @@ pub struct Options {
     pub hooks: Option<HookOptions>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     /// the _output_ format which the transformation pipeline is to emit

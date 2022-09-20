@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum LineClassStrategy {
     None,
     Basic,
@@ -73,7 +73,7 @@ pub struct CodeOptions {
     theme_dark: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct CodeConfig {
     /// The _language_ to use for code blocks when no language

@@ -5,7 +5,7 @@ use serde_json::Value;
 
 use super::frontmatter::MetaProperty;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub enum Handler<O> {
     Callback,
@@ -14,7 +14,7 @@ pub enum Handler<O> {
     IfElse(String, (O, O)),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FrontmatterHandler {
     pub title: Option<Handler<String>>,

@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Debug, Serialize, Deserialize, Error)]
 pub enum DarkmatterError {}
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Darkmatter {
     /// The uniqueness hash for full content of the page
     hash: String,
