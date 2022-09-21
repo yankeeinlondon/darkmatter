@@ -5,7 +5,7 @@ use crate::{
 };
 
 pub fn fm_default_values(
-    route: &str,
+    _route: &str,
     fm: Frontmatter,
     config: &Config,
 ) -> Result<Frontmatter, HookError> {
@@ -19,9 +19,9 @@ pub fn fm_default_values(
 }
 
 pub fn fm_override_values(
-    route: &str,
+    _route: &str,
     fm: Frontmatter,
-    dm: &Darkmatter,
+    _dm: &Darkmatter,
     config: &Config,
 ) -> Result<Frontmatter, HookError> {
     match &config.hooks.frontmatter.override_values {

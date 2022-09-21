@@ -2,6 +2,10 @@ use dm_utils::hash;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+use crate::{config::Config, errors::fm_err::FrontmatterError};
+
+use super::frontmatter::Frontmatter;
+
 #[derive(Error, Debug)]
 pub enum MarkdownError {}
 
@@ -21,12 +25,22 @@ impl MarkdownContentRaw {
         }
     }
 
+    /// The raw content contained by this `MarkdownContentRaw`
     pub fn content(&self) -> String {
         self.content.clone()
     }
 
+    /// The hash value of the raw markdown content
     pub fn hash(&self) -> u64 {
         self.hash
+    }
+
+    /// Separates the raw markdown content into pure markdown and frontmatter
+    pub fn parse(
+        &self,
+        config: &Config,
+    ) -> Result<(MarkdownContent, Frontmatter), FrontmatterError> {
+        Frontmatter::extract(self, config)
     }
 }
 

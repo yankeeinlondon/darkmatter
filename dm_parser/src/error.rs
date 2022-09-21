@@ -1,10 +1,10 @@
 use thiserror::Error;
 
 use crate::{
+    errors::fm_err::FrontmatterError,
     hooks::errors::HookError,
     models::{
-        darkmatter::DarkmatterError, frontmatter::FrontmatterError, html::HtmlError,
-        markdown::MarkdownError, sfc::SfcError,
+        darkmatter::DarkmatterError, html::HtmlError, markdown::MarkdownError, sfc::SfcError,
     },
 };
 

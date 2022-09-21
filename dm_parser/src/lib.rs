@@ -1,17 +1,19 @@
 use config::{Config, Options};
 // use content::toc::TocItem;
+use crate::models::markdown::MarkdownContentRaw;
 use error::ParserError;
 use models::{frontmatter::Frontmatter, pipeline::Pipeline};
-
-use crate::models::markdown::MarkdownContentRaw;
+use tracing::instrument;
 
 pub mod config;
 pub mod error;
+pub mod errors;
 pub mod hooks;
 pub mod models;
 
 /// The key parsing/transform library which converts markdown into a
 /// target output that the user specifies as part of their configuration.
+#[instrument]
 pub fn parse(route: &str, content: &str, options: &Options) -> Result<Pipeline, ParserError> {
     let config = Config::with_options(options);
     // Markdown and Frontmatter separated

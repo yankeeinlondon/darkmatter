@@ -19,10 +19,10 @@ impl HtmlContent {
     /// Transforms a Markdown input (along with relevant
     /// metadata) into an HTML output.
     pub fn from_markdown(
-        route: &str,
-        md: &MarkdownContent,
-        fm: &Frontmatter,
-        config: &Config,
+        _route: &str,
+        _md: &MarkdownContent,
+        _fm: &Frontmatter,
+        _config: &Config,
     ) -> Self {
         todo!();
     }

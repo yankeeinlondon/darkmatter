@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::models::{handler::FrontmatterHandler, pipeline::Pipeline};
+use crate::models::handler::FrontmatterHandler;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum HandlerType {
@@ -10,6 +10,6 @@ pub enum HandlerType {
     Static,
 }
 
-pub fn handler_type(ctx: &Option<FrontmatterHandler>) -> HandlerType {
+pub fn handler_type(_ctx: &Option<FrontmatterHandler>) -> HandlerType {
     HandlerType::Callback
 }
