@@ -1,4 +1,4 @@
-use super::{darkmatter::Darkmatter, frontmatter::Frontmatter};
+use super::{darkmatter::Darkmatter, frontmatter::Frontmatter, markdown::MarkdownContent};
 use crate::config::Config;
 use serde::{Deserialize, Serialize};
 
@@ -9,6 +9,7 @@ pub struct BaseContext {
     pub id: String,
     pub route: String,
     pub frontmatter: Frontmatter,
+    pub markdown: MarkdownContent,
     pub darkmatter: Option<Darkmatter>,
     pub config: Config,
 }
@@ -18,6 +19,7 @@ impl BaseContext {
         id: &str,
         route: &str,
         frontmatter: &Frontmatter,
+        markdown: &MarkdownContent,
         darkmatter: &Option<Darkmatter>,
         config: &Config,
     ) -> Self {
@@ -25,6 +27,7 @@ impl BaseContext {
             id: id.to_string(),
             route: route.to_string(),
             frontmatter: frontmatter.clone(),
+            markdown: markdown.clone(),
             darkmatter: if let Some(darkmatter) = darkmatter {
                 Some(darkmatter.clone())
             } else {

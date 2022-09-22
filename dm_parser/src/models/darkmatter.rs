@@ -25,7 +25,7 @@ impl Darkmatter {
         todo!();
     }
 
-    pub fn analyze_content(ctx: &Pipeline) -> Self {
+    pub fn analyze_content(_ctx: &Pipeline) -> Self {
         todo!();
     }
 }

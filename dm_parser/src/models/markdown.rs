@@ -1,10 +1,8 @@
+use super::frontmatter::Frontmatter;
+use crate::{config::Config, errors::fm_err::FrontmatterError};
 use dm_utils::hash;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-
-use crate::{config::Config, errors::fm_err::FrontmatterError};
-
-use super::frontmatter::Frontmatter;
 
 #[derive(Error, Debug)]
 pub enum MarkdownError {}
@@ -45,7 +43,7 @@ impl MarkdownContentRaw {
 }
 
 /// a string which represents Markdown content (but no frontmatter)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct MarkdownContent {
     /// the hash generated on the raw content from the file/db
     /// before any mutations took place
@@ -54,6 +52,7 @@ pub struct MarkdownContent {
     pub hash: u64,
     content: String,
 }
+
 impl MarkdownContent {
     /// takes the **raw** Markdown along with the markdown content
     /// after the frontmatter has been extracted. This allows the

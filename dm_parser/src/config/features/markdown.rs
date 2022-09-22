@@ -18,12 +18,12 @@ pub struct MarkdownOptions {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct MarkdownConfig {
-    tables: bool,
-    tasklists: bool,
-    smart_punctuation: bool,
-    heading_attributes: bool,
-    footnotes: bool,
-    strikethrough: bool,
+    pub tables: bool,
+    pub tasklists: bool,
+    pub smart_punctuation: bool,
+    pub heading_attributes: bool,
+    pub footnotes: bool,
+    pub strikethrough: bool,
 }
 
 impl MarkdownConfig {
