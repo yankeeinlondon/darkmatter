@@ -38,7 +38,7 @@ impl MarkdownConfig {
         }
     }
 
-    pub fn with_options(options: MarkdownOptions) {
+    pub fn with_options(options: MarkdownOptions) -> Self {
         let mut config = MarkdownConfig::default();
 
         if let Some(tables) = options.tables {
@@ -59,5 +59,7 @@ impl MarkdownConfig {
         if let Some(strikethrough) = options.strikethrough {
             config.strikethrough = strikethrough;
         }
+
+        config
     }
 }

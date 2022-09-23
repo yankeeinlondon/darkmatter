@@ -1,11 +1,13 @@
+use std::{fs::read_to_string, path::Path};
+
 use super::frontmatter::Frontmatter;
-use crate::{config::Config, errors::fm_err::FrontmatterError};
+use crate::{
+    config::Config,
+    errors::{fm_err::FrontmatterError, md_err::MarkdownError},
+};
 use dm_utils::hash;
 use serde::{Deserialize, Serialize};
-use thiserror::Error;
-
-#[derive(Error, Debug)]
-pub enum MarkdownError {}
+use tracing::instrument;
 
 /// Markdown content that may also contain frontmatter at the top
 #[derive(Debug, Serialize, Deserialize)]
@@ -66,12 +68,27 @@ impl MarkdownContent {
         }
     }
 
+    /// Load markdown content from a file and return a tuple with the **Markdown**
+    /// and **Frontmatter**.
+    #[instrument]
+    pub fn from_file(file: &str, config: &Config) -> Result<(Self, Frontmatter), MarkdownError> {
+        let path = Path::new(file);
+        let raw = read_to_string(path).map_err(|e| MarkdownError::FileNotFound(e))?;
+        let raw = MarkdownContentRaw::new(&raw);
+
+        let (markdown, frontmatter) = Frontmatter::extract(&raw, &config)?;
+
+        Ok((markdown, frontmatter))
+    }
+
     /// gets the current state of the markdown content
+    #[instrument]
     pub fn content(&self) -> String {
         self.content.clone()
     }
 
     /// mutates the state of the content and updates the hash
+    #[instrument]
     pub fn mutate(&mut self, content: &str) {
         self.hash = hash(content, None);
         self.content = content.to_string();

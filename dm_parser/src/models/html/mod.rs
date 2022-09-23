@@ -1,8 +1,10 @@
-use pulldown_cmark::{html::push_html, Options as ParserOptions, Parser};
+use pulldown_cmark::{html::push_html, Event, Options as ParserOptions, Parser};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use super::context::BaseContext;
+
+mod traits;
 
 #[derive(Error, Debug)]
 pub enum HtmlError {}
@@ -36,6 +38,7 @@ fn get_parser_options(ctx: &BaseContext) -> ParserOptions {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct HtmlContent {
     html: String,
+    max_nesting: i32,
     hash_initial: u64,
 }
 
@@ -45,11 +48,26 @@ impl From<&BaseContext> for HtmlContent {
         let parser_options = get_parser_options(ctx);
         let md = ctx.markdown.content();
         let parser = Parser::new_ext(&md, parser_options);
+        let mut max_nesting = 0;
+        let mut level = 0;
+        let parser = parser.map(|event| match event {
+            Event::Start(_) => {
+                level += 1;
+                max_nesting = std::cmp::max(max_nesting, level);
+            }
+            Event::End(_) => level -= 1,
+            _ => (),
+        });
+
         let mut html = String::new();
         push_html(&mut html, parser);
         let hash_initial = dm_utils::hash(&html, None);
 
-        HtmlContent { html, hash_initial }
+        HtmlContent {
+            html,
+            max_nesting,
+            hash_initial,
+        }
     }
 }
 
@@ -59,24 +77,24 @@ impl HtmlContent {
         let html = content.to_string();
         let hash_initial = dm_utils::hash(&html, None);
 
-        HtmlContent { html, hash_initial }
+        HtmlContent {
+            html,
+            max_nesting: 0,
+            hash_initial,
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::{
         config::Config,
-        models::{
-            frontmatter::Frontmatter,
-            markdown::{MarkdownContent, MarkdownContentRaw},
-        },
+        models::markdown::{MarkdownContent, MarkdownContentRaw},
     };
 
-    use super::*;
-
     #[test]
-    fn html_from_ctx() {
+    fn html_parse_base_test() {
         let markdown = MarkdownContentRaw::new(
             "Hello world, this is a ~~complicated~~ *very simple* example.",
         );
@@ -90,5 +108,21 @@ mod tests {
         let html = HtmlContent::from(&ctx).html;
 
         assert_eq!(expected_html, &html);
+    }
+
+    fn html_max_nesting() {
+        let (markdown, frontmatter) =
+            MarkdownContent::from_file("test/fixtures/structures.md", &Config::default()).unwrap();
+        let ctx = BaseContext::new(
+            "test",
+            "test",
+            &frontmatter,
+            &markdown,
+            &None,
+            &Config::default(),
+        );
+        let html = HtmlContent::from(&ctx);
+
+        assert_eq!(html.max_nesting, 5);
     }
 }

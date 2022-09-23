@@ -141,8 +141,31 @@ pub struct FeaturesConfig {
 }
 
 impl FeaturesConfig {
-    pub fn with_options(options: &FeatureOptions) -> Self {
-        todo!();
+    pub fn with_options(options: FeatureOptions) -> Self {
+        let mut config = FeaturesConfig::default();
+        if let Some(markdown) = options.markdown {
+            config.markdown = MarkdownConfig::with_options(markdown);
+        }
+        if let Some(frontmatter) = options.frontmatter {
+            config.frontmatter = FrontmatterConfig::with_options(frontmatter);
+        }
+        if let Some(links) = options.links {
+            config.links = LinkConfig::with_options(links);
+        }
+        if let Some(meta) = options.meta {
+            config.meta = MetaConfig::with_options(meta);
+        }
+        if let Some(code) = options.code {
+            config.code = CodeConfig::with_options(code);
+        }
+        if let Some(markdown) = options.markdown {
+            config.markdown = MarkdownConfig::with_options(markdown);
+        }
+        if let Some(markdown) = options.markdown {
+            config.markdown = MarkdownConfig::with_options(markdown);
+        }
+
+        config
     }
 }
 

@@ -1,12 +1,12 @@
 use thiserror::Error;
 
 use crate::{
-    errors::fm_err::FrontmatterError,
+    errors::{fm_err::FrontmatterError, md_err::MarkdownError},
     hooks::errors::HookError,
-    models::{
-        darkmatter::DarkmatterError, html::HtmlError, markdown::MarkdownError, sfc::SfcError,
-    },
+    models::{html::HtmlError, sfc::SfcError},
 };
+
+use super::dm_err::DarkmatterError;
 
 #[derive(Error, Debug)]
 pub enum ParserError {
