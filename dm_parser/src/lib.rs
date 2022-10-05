@@ -1,13 +1,13 @@
-use std::process::Output;
-
 use config::{Config, Options};
 use errors::parser_err::ParserError;
 use pipeline::{
-    initialize::Initialize, parse_sfc::ParseSfc, remaining_darkmatter::RemainingDarkmatter,
+    stages::{f_finalize_html::FinalizeHtml, g_sfc::SfcConversion},
     Pipeline,
 };
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
+
+use crate::source::Source;
 
 pub mod config;
 pub mod errors;
@@ -18,8 +18,8 @@ pub mod source;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ParsedOutput {
-    Html(Pipeline<RemainingDarkmatter>),
-    Sfc(Pipeline<ParseSfc>),
+    Html(Pipeline<FinalizeHtml>),
+    Sfc(Pipeline<SfcConversion>),
 }
 
 /// The key parsing/transform library which converts markdown into a
@@ -27,31 +27,53 @@ pub enum ParsedOutput {
 #[instrument]
 pub fn parse(id: &str, content: &str, options: &Options) -> Result<ParsedOutput, ParserError> {
     let config = Config::with_options(options);
-    let mut pipeline = Initialize::new(
-        //
-        "foobar", &config,
-    )
-    .parse_raw_md(content)?
-    .expand_shortcodes()
-    .h_mutate_markdown()
-    .gather_initial_darkmatter()?
-    .h_frontmatter_defaults()
-    .h_frontmatter_overrides()
-    .replace_static_handlebar_refs_to_frontmatter()
-    .parse_md_to_html()?
-    .wrap_html_body()
-    .gather_remaining_darkmatter()?
-    .h_html_body()
-    .h_header_script_blocks()
-    .h_header_title()
-    .h_header_meta_tags()
-    .h_header_style_blocks()
-    .default_metrics()
-    .h_metrics();
-
-    if &config.output == Output::SFC {
-        pipeline = ParseSfc::from(pipeline)?;
+    let mut pipeline = Pipeline::new("foobar", config);
+    // load raw markdown
+    match &pipeline.source {
+        Source::File => pipeline.add_md_file(id),
+        Source::Database => pipeline.add_md_db(id),
     }
 
-    Ok(pipeline.into())
+    let mut pipeline = pipeline
+        .h_raw_markdown() //
+        .next_stage()?
+        // ParseRawMd
+        .h_mutate_markdown()
+        .h_frontmatter_defaults()?
+        .h_frontmatter_overrides()?
+        .next_stage()?
+        // Initial Darkmatter
+        .lang_detection()?
+        .tokenize()?
+        .sentiment()?
+        .complexity()?
+        .ttr()?
+        // .bloom()?
+        .next_stage()?
+        // ParseHtml
+        .h_initial_darkmatter()?
+        .parse_to_html()?
+        .wrap_html_body()
+        .next_stage()?
+        // FinalizeDarkmatter
+        .toc()?
+        .darkmatter_metrics()
+        .next_stage()?
+        // FinalizeHtml
+        .h_html_body()?
+        .h_title()?
+        .h_meta_tags()?
+        .h_script_blocks()?
+        .h_style_blocks()?
+        .h_script_refs()?
+        .h_style_refs()?
+        .h_metrics()?;
+
+    // if &config.output == Output::SFC {
+    //     pipeline = ParseSfc::from(pipeline)?;
+    // }
+
+    todo!();
+
+    // Ok(pipeline.into())
 }

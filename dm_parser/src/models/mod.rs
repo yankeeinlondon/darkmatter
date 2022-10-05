@@ -1,5 +1,4 @@
 pub mod content_type;
-pub mod context;
 pub mod darkmatter;
 pub mod frontmatter;
 pub mod handler;

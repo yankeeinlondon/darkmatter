@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 use crate::{
     errors::parser_err::ParserError,
     models::{
@@ -10,16 +12,6 @@ use crate::{
 };
 
 use super::{remaining_darkmatter::RemainingDarkmatter, Pipeline, Stage};
-
-pub struct ParseSfc(Pipeline<Self>);
-
-impl Stage for ParseSfc {
-    type MD = MarkdownContent;
-    type FM = Frontmatter;
-    type DM = Darkmatter<DmFinal>;
-    type HTML = HtmlContent;
-    type SFC = Sfc;
-}
 
 impl TryFrom<&RemainingDarkmatter> for ParseSfc {
     type Error = ParserError;

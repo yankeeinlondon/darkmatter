@@ -1,7 +1,10 @@
 use super::errors::HookError;
 use crate::{
     config::Config,
-    models::{darkmatter::Darkmatter, frontmatter::Frontmatter},
+    models::{
+        darkmatter::{Darkmatter, DmInitial},
+        frontmatter::Frontmatter,
+    },
 };
 
 pub fn fm_default_values(
@@ -21,7 +24,7 @@ pub fn fm_default_values(
 pub fn fm_override_values(
     _route: &str,
     fm: Frontmatter,
-    _dm: &Darkmatter,
+    _dm: &Darkmatter<DmInitial>,
     config: &Config,
 ) -> Result<Frontmatter, HookError> {
     match &config.hooks.frontmatter.override_values {
