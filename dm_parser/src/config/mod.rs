@@ -38,7 +38,7 @@ pub struct Options {
     pub hooks: Option<HookOptions>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Config {
     /// the _output_ format which the transformation pipeline is to emit
@@ -83,13 +83,13 @@ impl Config {
             config.output = output;
         }
         if let Some(features) = options.features {
-            config.features = FeaturesConfig::with_options(options.features);
+            config.features = FeaturesConfig::with_options(features);
         }
         if let Some(dir_mapping) = options.dir_mapping {
             config.dir_mapping = dir_mapping;
         }
         if let Some(hooks) = options.hooks {
-            config.hooks = HookConfig::with_options(options.hooks);
+            config.hooks = HookConfig::with_options(&hooks);
         }
 
         config

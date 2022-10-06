@@ -3,14 +3,20 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 use crate::{
-    errors::parser_err::ParserError,
-    pipeline::{parse_html::ParseHtml, Pipeline},
+    config::Config,
+    errors::{md_err::MarkdownError, parser_err::ParserError},
+    pipeline::{stages::d_parse_html::ParseHtml, Pipeline},
 };
+
+use super::markdown::{MarkdownContent, MarkdownContentRaw};
 
 mod traits;
 
 #[derive(Error, Debug)]
-pub enum HtmlError {}
+pub enum HtmlError {
+    #[error("Problem converting &str content representing Markdown into HTML")]
+    FailedToConvertStr(#[from] MarkdownError),
+}
 
 fn get_parser_options(ctx: &Pipeline<ParseHtml>) -> ParserOptions {
     let mut options = ParserOptions::empty();
@@ -35,6 +41,10 @@ fn get_parser_options(ctx: &Pipeline<ParseHtml>) -> ParserOptions {
     }
 
     options
+}
+
+fn parse_html(md: &MarkdownContent, config: &Config) -> (String, i32) {
+    todo!();
 }
 
 /// a string which represents HTML content
@@ -77,15 +87,27 @@ impl TryFrom<&Pipeline<ParseHtml>> for HtmlContent {
     }
 }
 
+impl TryFrom<&str> for HtmlContent {
+    type Error = HtmlError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let raw = MarkdownContentRaw::new(value);
+        let config = Config::default();
+        let content = MarkdownContent::new(&raw, &config)?;
+        Ok(HtmlContent::new(
+            &content, //
+            &config,
+        ))
+    }
+}
+
 impl HtmlContent {
-    /// Create structure directly from HTML string content
-    pub fn new(content: &str) -> Self {
-        let html = content.to_string();
+    pub fn new(md: &MarkdownContent, config: &Config) -> Self {
+        let (html, max_nesting) = parse_html(md, config);
         let hash_initial = dm_utils::hash(&html, None);
 
         HtmlContent {
             html,
-            max_nesting: 0,
+            max_nesting,
             hash_initial,
         }
     }
@@ -99,24 +121,31 @@ impl HtmlContent {
 mod tests {
     use super::*;
     use crate::{
-        config::Config,
-        errors::parser_err::ParserError,
-        models::markdown::{MarkdownContent, MarkdownContentRaw},
-        pipeline::initialize::Initialize,
+        config::Config, errors::parser_err::ParserError, models::markdown::MarkdownContent,
     };
 
     /// an initialized Pipeline can use `try_from` to move to parsing stage
     #[test]
     fn html_parse_try_from() {
-        let init = Pipeline::new("foobar", Config::default());
-        let p = Pipeline::try_from(init);
+        let init = Pipeline::new("foobar", Config::default())
+            .add_md_str("my document")
+            .next_stage()
+            .unwrap()
+            .next_stage()
+            .unwrap();
+        let p: Result<Pipeline<ParseHtml>, ParserError> = Pipeline::try_from(init);
 
         assert!(p.is_ok());
     }
 
     #[test]
     fn html_parse_into() {
-        let init = Initialize::new("foobar", Config::default());
+        let init = Pipeline::new("foobar", Config::default())
+            .add_md_str("my document")
+            .next_stage()
+            .unwrap()
+            .next_stage()
+            .unwrap();
         let p: Result<Pipeline<ParseHtml>, ParserError> = init.try_into();
 
         assert!(p.is_ok());
@@ -124,20 +153,26 @@ mod tests {
 
     #[test]
     fn html_parse_base_test() {
-        let markdown = MarkdownContentRaw::new(
-            "Hello world, this is a ~~complicated~~ *very simple* example.",
-        );
-        let expected_html =
-            "<p>Hello world, this is a <del>complicated</del> <em>very simple</em> example.</p>\n";
-        let config = Config::default();
-        let (md, fm) = markdown.parse(&config).unwrap();
-        let ctx = ParseHtml::new("foobar", config, md, fm);
+        let p = Pipeline::new("foobar", Config::default())
+            .add_md_str("Hello world, this is a ~~complicated~~ *very simple* example.")
+            .next_stage()
+            .unwrap()
+            .next_stage()
+            .unwrap()
+            .next_stage()
+            .unwrap()
+            .parse_to_html()
+            .unwrap();
 
-        ctx.parse_html();
+        let html = p.html;
 
-        let html = ctx.0.html;
+        assert!(html.is_some());
 
-        assert_eq!(&ctx.0.html.content(), &expected_html);
+        if let Some(html) = html {
+            let expected_html =
+                "<p>Hello world, this is a <del>complicated</del> <em>very simple</em> example.</p>\n";
+            assert_eq!(expected_html, html.content());
+        }
     }
 
     fn html_max_nesting() {

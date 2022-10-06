@@ -1,7 +1,5 @@
 use thiserror::Error;
 
-use super::fm_err::FrontmatterError;
-
 #[derive(Error, Debug)]
 pub enum MarkdownError {
     #[error("The markdown file could not be loaded!")]
@@ -12,6 +10,8 @@ pub enum MarkdownError {
     )]
     NotReadyForParseRawMdState,
 
-    #[error("Problems extracting frontmatter when loading markdown file")]
-    FrontmatterParsing(#[from] FrontmatterError),
+    #[error(
+        "Problems extracting frontmatter when loading markdown file; the markdown content was:\n{0}\n"
+    )]
+    FrontmatterParsing(String),
 }

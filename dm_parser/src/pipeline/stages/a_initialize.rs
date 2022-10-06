@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     config::Config,
-    errors::{md_err::MarkdownError, parser_err::ParserError},
+    errors::parser_err::ParserError,
     models::markdown::MarkdownContentRaw,
     pipeline::{Pipeline, Stage},
     source::Source,
@@ -24,14 +24,15 @@ impl Stage for Initialize {
 }
 
 impl Pipeline<Initialize> {
-    pub fn new(id: &str, config: Config) -> Pipeline<Initialize> {
+    pub fn new<'a>(id: &'a str, config: Config) -> Pipeline<Initialize> {
+        let source = match id.starts_with("db::") {
+            true => Source::Database,
+            false => Source::File,
+        };
         Pipeline {
             id: id.to_string(),
-            route: id.to_string(),
-            source: match id.starts_with("db::") {
-                true => Source::Database,
-                false => Source::File,
-            },
+            route: id,
+            source,
             config,
             markdown: None,
             frontmatter: false,
@@ -41,36 +42,52 @@ impl Pipeline<Initialize> {
         }
     }
 
+    pub fn load_content(&mut self) -> Result<&mut Pipeline<Initialize>, ParserError> {
+        let file = self.id.to_owned();
+        match self.source {
+            Source::Database => {
+                self.add_md_db(&file)?;
+            }
+            Source::File => {
+                self.add_md_file(&file)?;
+            }
+        }
+
+        Ok(self)
+    }
+
     /// add raw markdown content from a string slice
-    pub fn add_md_str(&self, md: &str) {
+    pub fn add_md_str(&mut self, md: &str) -> &mut Pipeline<Initialize> {
         self.markdown = Some(MarkdownContentRaw::new(md));
+
+        self
     }
 
     /// add raw markdown content from a file
-    pub fn add_md_file(&self, file: &str) {
+    pub fn add_md_file(&mut self, file: &str) -> Result<&mut Pipeline<Initialize>, ParserError> {
         todo!();
     }
 
     /// add raw markdown content from a database connection
-    pub fn add_md_db(&self, db: &str) {
+    pub fn add_md_db(&mut self, db: &str) -> Result<&mut Pipeline<Initialize>, ParserError> {
         todo!();
     }
 
     /// apply userland transforms from the raw_markdown hook
-    pub fn h_raw_markdown(&self) -> Self {
-        *self
+    pub fn h_raw_markdown(&mut self) -> Result<&mut Pipeline<Initialize>, ParserError> {
+        Ok(self)
     }
 
     /// after providing the raw markdown content you can move the
     /// next stage which involves parsing the "raw md" into both
     /// `Frontmatter` and `MarkdownContent`
-    pub fn next_stage(mut self) -> Result<Pipeline<ParseRawMd>, ParserError> {
-        if self.markdown.is_none() {
-            Err(ParserError::Markdown(
-                MarkdownError::NotReadyForParseRawMdState,
-            ))
-        } else {
-            Pipeline::try_from(self)
-        }
+    pub fn next_stage(self) -> Result<Pipeline<ParseRawMd>, ParserError> {
+        Pipeline::try_from(self)
+        // if self.markdown.is_none() {
+        //     Err(ParserError::Markdown(
+        //         MarkdownError::NotReadyForParseRawMdState,
+        //     ))
+        // } else {
+        // }
     }
 }

@@ -65,7 +65,7 @@ impl Pipeline<InitialDarkmatter> {
         todo!();
     }
 
-    pub fn next_stage(&mut self) -> Result<Pipeline<ParseHtml>, ParserError> {
-        Pipeline::try_from(*self)
+    pub fn next_stage(self) -> Result<Pipeline<ParseHtml>, ParserError> {
+        Pipeline::try_from(self)
     }
 }

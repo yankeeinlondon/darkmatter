@@ -50,26 +50,26 @@ impl TryFrom<Pipeline<Initialize>> for Pipeline<ParseRawMd> {
 }
 
 impl Pipeline<ParseRawMd> {
-    pub fn h_frontmatter_defaults(&mut self) -> Result<Pipeline<ParseRawMd>, ParserError> {
-        Ok(*self)
+    pub fn h_frontmatter_defaults(&mut self) -> Result<&mut Self, ParserError> {
+        Ok(self)
     }
 
-    pub fn h_frontmatter_overrides(&mut self) -> Result<Pipeline<ParseRawMd>, ParserError> {
-        Ok(*self)
+    pub fn h_frontmatter_overrides(&mut self) -> Result<&mut Self, ParserError> {
+        Ok(self)
     }
 
-    pub fn expand_shortcodes(&mut self) -> Self {
-        *self
+    pub fn expand_shortcodes(&mut self) -> Result<&mut Self, ParserError> {
+        Ok(self)
     }
     /// allows the raw markdown content to be mutated before any
     /// processing is done
-    pub fn h_mutate_markdown(&mut self) -> Self {
-        *self
+    pub fn h_mutate_markdown(&mut self) -> Result<&mut Self, ParserError> {
+        Ok(self)
     }
 
     /// Gather the first part of the darkmatter metadata which will
     /// then become available to all subsequent hooks/callbacks.
-    pub fn next_stage(&mut self) -> Result<Pipeline<InitialDarkmatter>, ParserError> {
-        Pipeline::try_from(*self)
+    pub fn next_stage(self) -> Result<Pipeline<InitialDarkmatter>, ParserError> {
+        Pipeline::try_from(self)
     }
 }

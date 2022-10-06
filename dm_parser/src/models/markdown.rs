@@ -60,12 +60,12 @@ impl MarkdownContent {
     /// after the frontmatter has been extracted. This allows the
     /// creation of a struct which has hashes for both states but
     /// only the content for the _actual_ markdown.
-    pub fn new(md: &MarkdownContentRaw, content: &str) -> Self {
-        MarkdownContent {
-            content: content.to_string(),
-            raw_hash: md.hash(),
-            hash: hash(&content, None),
-        }
+    pub fn new(md: &MarkdownContentRaw, config: &Config) -> Result<Self, MarkdownError> {
+        let (md, _) = md
+            .parse(config)
+            .map_err(|_| MarkdownError::FrontmatterParsing(md.content().to_string()))?;
+
+        Ok(md)
     }
 
     /// Load markdown content from a file and return a tuple with the **Markdown**
@@ -76,7 +76,8 @@ impl MarkdownContent {
         let raw = read_to_string(path).map_err(|e| MarkdownError::FileNotFound(e))?;
         let raw = MarkdownContentRaw::new(&raw);
 
-        let (markdown, frontmatter) = Frontmatter::extract(&raw, &config)?;
+        let (markdown, frontmatter) = Frontmatter::extract(&raw, &config)
+            .map_err(|_| MarkdownError::FrontmatterParsing(raw.content().to_string()))?;
 
         Ok((markdown, frontmatter))
     }

@@ -1,4 +1,5 @@
 use super::{content_type::ContentType, sentiment::Sentiment, toc::TocItem};
+use core::fmt::Debug;
 use lingua::Language;
 use serde::{Deserialize, Serialize};
 
@@ -110,14 +111,17 @@ where
             .field("time_to_read", &self.time_to_read)
             .field("complexity", &self.complexity)
             .field("sentiment", &self.sentiment)
-            .field("max_nesting", &self.max_nesting)
-            .field("toc_hash", &self.toc_hash)
-            .field("toc", &self.toc)
-            .field("images", &self.images)
-            .field("links", &self.links)
+            .field("max_nesting", &"max_nesting")
+            .field("toc_hash", &"toc_hash")
+            .field("toc", &"toc")
+            .field("images", &"images")
+            .field("links", &"links")
             .finish()
     }
 }
+
+const DEFAULT_IMAGE_REFS: usize = 5;
+const DEFAULT_LINK_REFS: usize = 8;
 
 impl Default for Darkmatter<DmWhileParsing> {
     fn default() -> Self {
@@ -131,8 +135,8 @@ impl Default for Darkmatter<DmWhileParsing> {
             max_nesting: None,
             toc_hash: None,
             toc: None,
-            images: Vec::with_capacity(5),
-            links: Vec::with_capacity(5),
+            images: Vec::with_capacity(DEFAULT_IMAGE_REFS),
+            links: Vec::with_capacity(DEFAULT_LINK_REFS),
         }
     }
 }

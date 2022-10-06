@@ -316,7 +316,8 @@ impl Frontmatter {
 
         // Excerpt content extracted from the body parse
         let excerpt = fm.excerpt;
-        let markdown = MarkdownContent::new(raw_md, &matter.content);
+        let raw = MarkdownContentRaw::new(&matter.content);
+        let markdown = MarkdownContent::new(&raw, config)?;
         // Work with excerpt based on strategy
         let preferred = match config.features.frontmatter.excerpt_strategy {
             ExcerptStrategy::Auto => [&frontmatter.excerpt, &excerpt],

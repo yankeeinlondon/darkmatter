@@ -7,7 +7,7 @@ use pipeline::{
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-use crate::source::Source;
+use crate::pipeline::stages::b_parse_raw_md::ParseRawMd;
 
 pub mod config;
 pub mod errors;
@@ -26,48 +26,48 @@ pub enum ParsedOutput {
 /// target output that the user specifies as part of their configuration.
 #[instrument]
 pub fn parse(id: &str, content: &str, options: &Options) -> Result<ParsedOutput, ParserError> {
-    let config = Config::with_options(options);
-    let mut pipeline = Pipeline::new("foobar", config);
-    // load raw markdown
-    match &pipeline.source {
-        Source::File => pipeline.add_md_file(id),
-        Source::Database => pipeline.add_md_db(id),
-    }
+    let pipeline = Pipeline::new(
+        "foobar", //
+        Config::with_options(options),
+    )
+    .load_content()?
+    .h_raw_markdown()?;
 
-    let mut pipeline = pipeline
-        .h_raw_markdown() //
-        .next_stage()?
-        // ParseRawMd
-        .h_mutate_markdown()
-        .h_frontmatter_defaults()?
-        .h_frontmatter_overrides()?
-        .next_stage()?
-        // Initial Darkmatter
-        .lang_detection()?
-        .tokenize()?
-        .sentiment()?
-        .complexity()?
-        .ttr()?
-        // .bloom()?
-        .next_stage()?
-        // ParseHtml
-        .h_initial_darkmatter()?
-        .parse_to_html()?
-        .wrap_html_body()
-        .next_stage()?
-        // FinalizeDarkmatter
-        .toc()?
-        .darkmatter_metrics()
-        .next_stage()?
-        // FinalizeHtml
-        .h_html_body()?
-        .h_title()?
-        .h_meta_tags()?
-        .h_script_blocks()?
-        .h_style_blocks()?
-        .h_script_refs()?
-        .h_style_refs()?
-        .h_metrics()?;
+    // let mut p2 = Pipeline::parse_raw_md(pipeline)?.h_mutate_markdown();
+
+    // .next_stage()?;
+
+    // .h_mutate_markdown()?
+    // .h_frontmatter_defaults()?
+    // .h_frontmatter_overrides()?;
+    // .expand_shortcodes()?;
+    // .next_stage()?
+    // // Initial Darkmatter
+    // .lang_detection()?
+    // .tokenize()?
+    // .sentiment()?
+    // .complexity()?
+    // .ttr()?
+    // // .bloom()?
+    // .next_stage()?
+    // // ParseHtml
+    // .h_initial_darkmatter()?
+    // .parse_to_html()?
+    // .wrap_html_body()
+    // .next_stage()?
+    // // FinalizeDarkmatter
+    // .toc()?
+    // .darkmatter_metrics()
+    // .next_stage()?
+    // // FinalizeHtml
+    // .h_html_body()?
+    // .h_title()?
+    // .h_meta_tags()?
+    // .h_script_blocks()?
+    // .h_style_blocks()?
+    // .h_script_refs()?
+    // .h_style_refs()?
+    // .h_metrics()?;
 
     // if &config.output == Output::SFC {
     //     pipeline = ParseSfc::from(pipeline)?;
