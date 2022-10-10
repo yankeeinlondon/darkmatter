@@ -35,8 +35,7 @@ pub struct StemAlgo(String, Algorithm);
 
 impl StemAlgo {
     pub fn new(name: &str, algo: Algorithm) -> StemAlgo {
-        let stem = StemAlgo(name.to_string(), algo);
-        stem
+        StemAlgo(name.to_string(), algo)
     }
 
     pub fn name(&self) -> String {
@@ -52,9 +51,9 @@ impl TryFrom<&Language> for StemAlgo {
     type Error = StemmingError;
 
     fn try_from(value: &Language) -> Result<StemAlgo, StemmingError> {
-        let algo = STEM_LOOKUP.with(|lookup| {
+        STEM_LOOKUP.with(|lookup| {
             let mut found: Option<StemAlgo> = None;
-            for l in lookup.into_iter() {
+            for l in lookup.iter() {
                 let lc = format!("{}", value).to_lowercase();
                 if lc.eq(l.0) {
                     let algo = l.1;
@@ -67,9 +66,7 @@ impl TryFrom<&Language> for StemAlgo {
                 Some(found) => Ok(found),
                 None => Err(StemmingError::InvalidIso(value.to_string())),
             }
-        });
-
-        algo
+        })
     }
 }
 
@@ -78,6 +75,12 @@ pub struct StemmedResults {
     tokens: HashSet<String>,
     /// given a stemmed token, allows lookup of the antecedents
     reverse_lookup: HashMap<String, Vec<String>>,
+}
+
+impl Default for StemmedResults {
+    fn default() -> Self {
+        StemmedResults::new()
+    }
 }
 
 impl StemmedResults {
@@ -99,18 +102,22 @@ impl StemmedResults {
         self.tokens.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     pub fn contains(&self, token: &str) -> bool {
         self.tokens.contains(token)
     }
 
     pub fn insert(&mut self, original: &str, maps_to: String) {
         self.tokens.insert(maps_to.clone());
-        if self.reverse_lookup.get(&maps_to.clone()).is_none() {
+        if self.reverse_lookup.get(&maps_to).is_none() {
             self.reverse_lookup.insert(maps_to.clone(), vec![]);
         }
 
         self.reverse_lookup
-            .get_mut(&maps_to.clone())
+            .get_mut(&maps_to)
             .unwrap()
             .push(original.to_string());
     }
@@ -130,7 +137,10 @@ impl StemmedResults {
 
 /// Provides stemming on the text corpus to reduce
 /// words with shared meaning to a single token
-pub fn stem(tokens: &Vec<String>, lang: &Language) -> Result<StemmedResults, StemmingError> {
+pub fn stem(
+    tokens: &Vec<String>,
+    lang: &Language,
+) -> Result<StemmedResults, StemmingError> {
     let algo = StemAlgo::try_from(lang)?;
     let stemmer = Stemmer::create(algo.1);
     let mut results = StemmedResults::new();
@@ -153,7 +163,8 @@ mod tests {
 
     #[test]
     fn simple_stem_test() {
-        let mut outcome = stem(&vec!["fruitlessly".to_string()], &Language::English).unwrap();
+        let mut outcome =
+            stem(&vec!["fruitlessly".to_string()], &Language::English).unwrap();
         assert_eq!(outcome.tokens.len(), 1);
         let tokens = outcome.take_tokens();
         let token = tokens.get(0);
@@ -166,7 +177,8 @@ mod tests {
     #[test]
     fn stem_a_full_corpus() {
         let path = Path::new("src/stemming/en.txt");
-        let words = Words::from_path(path, Some(12)).expect("Couldn't read corpus.txt!");
+        let words = Words::from_path(path, Some(12))
+            .expect("Couldn't read corpus.txt!");
         let results = stem(&words.as_tokens(), &Language::English)
             .expect("failed to stem the text loaded from file");
 

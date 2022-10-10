@@ -5,7 +5,7 @@ use thiserror::Error;
 use crate::{
     config::Config,
     errors::{md_err::MarkdownError, parser_err::ParserError},
-    pipeline::{stages::d_parse_html::ParseHtml, Pipeline},
+    pipeline::stages::Pipeline,
 };
 
 use super::markdown::{MarkdownContent, MarkdownContentRaw};

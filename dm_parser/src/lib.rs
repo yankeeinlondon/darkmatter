@@ -1,13 +1,8 @@
 use config::{Config, Options};
 use errors::parser_err::ParserError;
-use pipeline::{
-    stages::{f_finalize_html::FinalizeHtml, g_sfc::SfcConversion},
-    Pipeline,
-};
+use pipeline::Pipeline;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
-
-use crate::pipeline::stages::b_parse_raw_md::ParseRawMd;
 
 pub mod config;
 pub mod errors;
@@ -18,8 +13,8 @@ pub mod source;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ParsedOutput {
-    Html(Pipeline<FinalizeHtml>),
-    Sfc(Pipeline<SfcConversion>),
+    Temp, // Html(Pipeline<FinalizeHtml>),
+          // Sfc(Pipeline<SfcConversion>),
 }
 
 /// The key parsing/transform library which converts markdown into a

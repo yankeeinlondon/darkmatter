@@ -1,19 +1,20 @@
 pub mod errors;
 
-use human_regex::{
-    beginning_of_text, exactly, one_or_more, or, punctuation, whitespace, word_boundary,
-};
-use lingua::Language;
-use stop_words::{self};
-use tracing::instrument;
-
 pub use self::errors::StopWordError;
 use crate::words::Words;
+use human_regex::{
+    beginning_of_text, exactly, one_or_more, or, punctuation, whitespace,
+    word_boundary,
+};
+use lingua::Language;
+use tracing::instrument;
 
-#[instrument()]
-fn get_stop_words_with_language(lang: &Language) -> Result<Vec<String>, StopWordError> {
+#[instrument]
+fn get_stop_words_with_language(
+    lang: &Language,
+) -> Result<Vec<String>, StopWordError> {
     let ln = stop_words::get(lang.iso_code_639_1().to_string());
-    if ln.len() == 0 {
+    if ln.is_empty() {
         let message = format!(
             "The language '{}'[{}] does not have any stop words associated to it (stop_words crate).",
             lang,
@@ -38,7 +39,7 @@ pub struct StopWords {
 /// Utility for extracting stop words out of known languages
 impl StopWords {
     /// extract stop words from a passed in corpus
-    #[instrument()]
+    #[instrument]
     pub fn parse(corpus: &str, lang: Language) -> Result<Self, StopWordError> {
         // move to lowercase
         let corpus = corpus.to_ascii_lowercase();
@@ -63,7 +64,7 @@ impl StopWords {
         let trimmings = beginning_of_text() + one_or_more(whitespace());
         let corpus = trimmings.to_regex().replace_all(&*corpus, "");
 
-        let words = Words::parse(&corpus.to_string(), None);
+        let words = Words::parse(&corpus, None);
 
         Ok(StopWords {
             language: (
@@ -78,17 +79,14 @@ impl StopWords {
 
     /// Get a space-separated string with all the remaining words
     /// after the stop-words have been extracted.
-    #[instrument()]
+    #[instrument]
     pub fn as_prose(&self) -> String {
-        let prose = self.tokens.join(" ");
-
-        prose
+        self.tokens.join(" ")
     }
 
-    #[instrument()]
+    #[instrument]
     pub fn as_tokens(&self) -> Vec<String> {
-        let tokens = self.tokens.clone();
-        tokens
+        self.tokens.clone()
     }
 
     /// Number of words that exist after the stemming
@@ -103,7 +101,11 @@ impl StopWords {
         self.as_prose().len()
     }
 
-    #[instrument()]
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    #[instrument]
     pub fn language(&self) -> String {
         format!(
             "{}[{}, {}]",
@@ -153,8 +155,8 @@ mod tests {
     #[test]
     fn spanish_words() {
         let prose = "El veloz zorro marrón saltó sobre el perezoso perro.";
-        let stop =
-            StopWords::parse(prose, Language::Spanish).expect("no spanish stop-words were found!");
+        let stop = StopWords::parse(prose, Language::Spanish)
+            .expect("no spanish stop-words were found!");
 
         assert_eq!(
             stop.as_prose(),

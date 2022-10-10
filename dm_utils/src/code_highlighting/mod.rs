@@ -59,7 +59,7 @@ thread_local! {
 }
 
 #[derive(
-    Debug, Serialize, Deserialize, Display, EnumIter, PartialEq, Clone,
+    Debug, Serialize, Deserialize, Display, EnumIter, Eq, PartialEq, Clone,
 )]
 pub enum ThemeChoices {
     InspiredGithub,
@@ -86,7 +86,7 @@ pub enum ThemeChoices {
 /// - [Scope Naming](https://www.sublimetext.com/docs/scope_naming.html)
 /// - [Color Schemes](https://www.sublimetext.com/docs/scope_naming.html#color-schemes)
 #[derive(
-    Debug, Serialize, Deserialize, Display, EnumIter, PartialEq, Clone,
+    Debug, Serialize, Deserialize, Display, EnumIter, Eq, PartialEq, Clone,
 )]
 pub enum Grammar {
     ASP,
@@ -205,16 +205,16 @@ impl Grammar {
     #[instrument(level = "info")]
     pub fn as_syntax_ref(&self) -> SyntaxReference {
         SYNTAX.with(|s| {
-            let language = format!("{}", &self);
-            let syntax = s.find_syntax_by_name(&language).unwrap().clone();
-            return syntax;
+            let language = format!("{:?}", &self);
+
+            s.find_syntax_by_name(&language).unwrap().clone()
         })
     }
 }
 
 impl From<Grammar> for String {
     fn from(grammar: Grammar) -> String {
-        format!("{}", grammar)
+        format!("{:?}", grammar)
     }
 }
 
@@ -242,7 +242,7 @@ impl CodeBlock {
     pub fn syntaxes() -> Vec<String> {
         SyntaxSet::load_defaults_newlines()
             .syntaxes()
-            .into_iter()
+            .iter()
             .map(|i| i.name.to_string())
             .collect()
     }
@@ -288,7 +288,7 @@ impl CodeBlock {
         code: &str,
         lang: &str,
     ) -> Result<Self, CodeBlockError> {
-        let grammar = Grammar::get(&lang);
+        let grammar = Grammar::get(lang);
         match grammar {
             Some(_) => {
                 let mut cb = CodeBlock::new(code);
@@ -308,7 +308,7 @@ impl CodeBlock {
 
     /// Will return the file extension if it can be discerned from
     /// the "filename".
-    #[instrument()]
+    #[instrument]
     pub fn file_extension(&self) -> Option<&str> {
         match &self.filename {
             Some(filename) => filename.split('.').last(),
@@ -318,7 +318,7 @@ impl CodeBlock {
 
     /// Mutates the contained code block while updating hash
     /// in the background.
-    #[instrument()]
+    #[instrument]
     pub fn mutate(&mut self, code: &str) {
         self.hash = hasher::hash(code, None);
         self.console_output = DarkModeCache::new();
@@ -327,7 +327,7 @@ impl CodeBlock {
     }
 
     /// provides the code in an _unformatted_ form
-    #[instrument()]
+    #[instrument]
     pub fn unformatted_code(&self) -> String {
         self.code.clone()
     }
@@ -361,9 +361,9 @@ impl CodeBlock {
 
     /// provides the code with color codes embedded which are
     /// designed for the console.
-    #[instrument()]
+    #[instrument]
     pub fn as_escaped_console(&mut self, dark_mode: &bool) -> String {
-        if let Some(cache) = &self.console_output.get(&dark_mode) {
+        if let Some(cache) = &self.console_output.get(dark_mode) {
             return cache.to_string();
         }
 
@@ -376,7 +376,7 @@ impl CodeBlock {
             &self.theme.0
         };
         if let Some(grammar) = grammar {
-            let mut h = HighlightLines::new(&grammar, &theme);
+            let mut h = HighlightLines::new(&grammar, theme);
             for line in LinesWithEndings::from(&self.code) {
                 let ranges: Vec<(Style, &str)> =
                     h.highlight_line(line, &ps).unwrap();
@@ -394,7 +394,7 @@ impl CodeBlock {
         code_lines
     }
 
-    #[instrument()]
+    #[instrument]
     pub fn get_css_info(
         &self,
         dark_mode: &bool,
@@ -416,12 +416,12 @@ impl CodeBlock {
     }
 
     /// provides the code as a tokenized HTML string
-    #[instrument()]
+    #[instrument]
     pub fn as_html(
         &mut self,
         dark_mode: &bool,
     ) -> Result<String, CodeBlockError> {
-        if let Some(html) = &self.html.get(&dark_mode) {
+        if let Some(html) = &self.html.get(dark_mode) {
             return Ok(html.to_string());
         }
 
@@ -441,7 +441,7 @@ impl CodeBlock {
             code_lines = html.finalize();
         }
 
-        self.html.cache(&code_lines, &dark_mode);
+        self.html.cache(&code_lines, dark_mode);
 
         Ok(code_lines)
     }
@@ -450,20 +450,20 @@ impl CodeBlock {
         &mut self,
         dark_mode: &bool,
     ) -> Result<String, CodeBlockError> {
-        let html = self.as_html(&dark_mode)?;
-        let info = self.get_css_info(&dark_mode)?;
+        let html = self.as_html(dark_mode)?;
+        let info = self.get_css_info(dark_mode)?;
 
         Ok(["<style>", &info.css, "</style>", &html]
             .join("\n")
-            .to_string())
+        )
     }
 
     pub fn as_html_with_css_ref(
         &mut self,
         dark_mode: &bool,
     ) -> Result<String, CodeBlockError> {
-        let html = self.as_html(&dark_mode)?;
-        let info = self.get_css_info(&dark_mode)?;
+        let html = self.as_html(dark_mode)?;
+        let info = self.get_css_info(dark_mode)?;
 
         Ok(
             [
@@ -471,13 +471,15 @@ impl CodeBlock {
                 &info.filename, 
                 "\">", 
                 &html
-            ].join("\n").to_string()
+            ].join("\n")
         )
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use tracing::debug;
+
     use super::*;
 
     #[test]
@@ -614,6 +616,7 @@ mod tests {
         let code = "let foo: number = 42";
         let mut block = CodeBlock::new_with_lang(code, "Typescript").unwrap();
         let html = block.as_html(&true).unwrap();
+        println!("{}", &html);
         assert!(html.contains("meta.link {\n color: #d08770;\n}"));
     }
 

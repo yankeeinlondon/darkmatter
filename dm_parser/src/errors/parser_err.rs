@@ -3,7 +3,7 @@ use thiserror::Error;
 use crate::{
     errors::{fm_err::FrontmatterError, md_err::MarkdownError},
     hooks::errors::HookError,
-    models::{html::HtmlError, sfc::SfcError},
+    models::sfc::SfcError,
 };
 
 use super::dm_err::DarkmatterError;
@@ -18,8 +18,8 @@ pub enum ParserError {
     Hooks(#[from] HookError),
     #[error("Issues encountered while processing markdown")]
     Markdown(#[from] MarkdownError),
-    #[error("Issues encountered while converting Markdown to HTML.")]
-    HTML(#[from] HtmlError),
+    // #[error("Issues encountered while converting Markdown to HTML.")]
+    // HTML(#[from] HtmlError),
     #[error("Issues encountered while converting HTML to SFC format.")]
     SFC(#[from] SfcError),
 }
