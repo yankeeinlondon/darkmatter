@@ -478,7 +478,6 @@ impl CodeBlock {
 
 #[cfg(test)]
 mod tests {
-    use tracing::debug;
 
     use super::*;
 

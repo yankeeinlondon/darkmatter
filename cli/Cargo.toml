@@ -1,0 +1,12 @@
+[package]
+name = "cli"
+description = "utilities to aid in the darkmatter transformation pipeline"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "dm"
+path = "src/main.rs"
+
+[dependencies]
+clap = "4.0.11"

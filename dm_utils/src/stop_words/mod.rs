@@ -9,7 +9,7 @@ use human_regex::{
 use lingua::Language;
 use tracing::instrument;
 
-#[instrument]
+#[instrument()]
 fn get_stop_words_with_language(
     lang: &Language,
 ) -> Result<Vec<String>, StopWordError> {
