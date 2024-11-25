@@ -1,5 +1,5 @@
 [workspace]
-members = ["dm_utils", "dm_parser", "cli"]
+members = ["dm_utils", "dm_parser", "cli", "db"]
 
 [workspace.metadata.companion]
 root = "companion"
